@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Smart Workflow</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+</head>
+<body class="profile-page">
+
+    <!-- Navigation bar — matches dashboard exactly -->
+    <div class="dash-sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ── Sidebar ── -->
+    <nav class="dash-sidebar" id="sidebar">
+        <div class="dash-sidebar-header">
+            <span class="dash-sidebar-title">Workflow</span>
+            <button class="dash-sidebar-close" id="sidebarClose" aria-label="Close menu">&#10005;</button>
+        </div>
+        <ul class="dash-sidebar-nav">
+            <li>
+                <a href="/dashboard">
+                    <span class="dash-sidebar-icon">&#127968;</span> Home
+                </a>
+            </li>
+            <li>
+                <a href="/projects-page" class="active">
+                    <span class="dash-sidebar-icon">&#128193;</span> Projects
+                </a>
+            </li>
+            <li>
+                <a href="/about">
+                    <span class="dash-sidebar-icon">&#8505;&#65039;</span> About
+                </a>
+            </li>
+            <li>
+                <a href="/profile-page">
+                    <span class="dash-sidebar-icon">&#128100;</span> Profile
+                </a>
+            </li>
+            <li>
+                <button id="sidebarLogout">
+                    <span class="dash-sidebar-icon">&#128275;</span> Logout
+                </button>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- ── Top navbar ── -->
+    <header class="dash-navbar">
+        <div class="dash-navbar-left">
+            <button class="dash-hamburger" id="hamburgerBtn" aria-label="Open menu">
+                <span></span><span></span><span></span>
+            </button>
+            <a href="/dashboard" class="dash-brand">Workflow</a>
+        </div>
+
+        <ul class="dash-nav-links">
+            <li><a href="/dashboard">Home</a></li>
+            <li><a href="/projects-page" class="active">Projects</a></li>
+            <li><a href="/about">About</a></li>
+
+        </ul>
+
+        <button class="dash-logout-btn" id="logoutButton">Logout</button>
+    </header>
+
+    <main class="container" style="max-width:720px;">
+        <div class="profile-header">
+            <div class="profile-photo-wrapper" id="photoWrapper"
+                 title="Click to change photo">
+                <img id="profilePhoto"
+                     src="{{ url_for('static', filename='images/no profile.jpg') }}"
+                     alt="Profile photo">
+                <div class="profile-photo-overlay">
+                    <span class="camera-icon">&#128247;</span>
+                </div>
+                <input type="file" id="photoInput" accept=".jpg,.jpeg,.png,.webp"
+                       style="display:none;">
+            </div>
+            <div class="profile-header-info">
+                <div class="profile-name"  id="headerName">Loading...</div>
+                <div class="profile-role"  id="headerRole"></div>
+            </div>
+        </div>
+        <div id="pageMsg" class="alert mb-3" hidden></div>
+        <div class="profile-section" id="basicSection">
+            <div class="profile-section-header">
+                <h2 class="profile-section-title">Basic Details</h2>
+                <button class="profile-edit-btn" id="basicEditBtn">Edit</button>
+            </div>
+            <hr class="profile-section-divider">
+            <div class="profile-fields" id="basicDisplay">
+                <div class="profile-field-row">
+                    <span class="profile-field-label">Full Name</span>
+                    <span class="profile-field-value" id="dFullName"></span>
+                </div>
+                <div class="profile-field-row">
+                    <span class="profile-field-label">Email</span>
+                    <span class="profile-field-value" id="dEmail"></span>
+                </div>
+                <div class="profile-field-row">
+                    <span class="profile-field-label">Role</span>
+                    <span class="profile-field-value" id="dRole"></span>
+                </div>
+                <div class="profile-field-row">
+                    <span class="profile-field-label">Company</span>
+                    <span class="profile-field-value" id="dCompany"></span>
+                </div>
+                <div class="profile-field-row">
+                    <span class="profile-field-label">Branch</span>
+                    <span class="profile-field-value" id="dBranch"></span>
+                </div>
+                <div class="profile-field-row">
+                    <span class="profile-field-label">Gender</span>
+                    <span class="profile-field-value" id="dGender"></span>
+                </div>
+                <div class="profile-field-row">
+                    <span class="profile-field-label">Date of Birth</span>
+                    <span class="profile-field-value" id="dDob"></span>
+                </div>
+            </div>
+            <div class="profile-edit-form" id="basicEditForm" style="display:none;">
+                <div class="pf-group">
+                    <label class="pf-label" for="eFullName">Full Name</label>
+                    <input class="pf-input" type="text" id="eFullName"
+                           placeholder="Full name" required maxlength="100">
+                </div>
+                <div class="pf-group">
+                    <label class="pf-label" for="eCompany">Company Name</label>
+                    <input class="pf-input" type="text" id="eCompany"
+                           placeholder="Company name" required maxlength="100">
+                </div>
+                <div class="pf-group">
+                    <label class="pf-label" for="eBranch">Branch / City</label>
+                    <input class="pf-input" type="text" id="eBranch"
+                           placeholder="Branch or city" required maxlength="50">
+                </div>
+                <div style="display:flex;gap:14px;flex-wrap:wrap;">
+                    <div class="pf-group" style="flex:1;min-width:140px;">
+                        <label class="pf-label" for="eGender">Gender</label>
+                        <select class="pf-select" id="eGender">
+                            <option value="">Prefer not to say</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="pf-group" style="flex:1;min-width:140px;">
+                        <label class="pf-label" for="eDob">Date of Birth</label>
+                        <input class="pf-input" type="date" id="eDob">
+                    </div>
+                </div>
+                <p class="auth-hint" style="margin-bottom:10px;">
+                    Role cannot be changed here. Contact an administrator to change your role.
+                </p>
+                <div class="pf-actions">
+                    <button class="pf-save-btn"   id="basicSaveBtn">Save</button>
+                    <button class="pf-cancel-btn" id="basicCancelBtn">Cancel</button>
+                </div>
+                <p class="profile-section-msg" id="basicMsg"></p>
+            </div>
+        </div>
+        <div class="profile-section" id="contactSection">
+            <div class="profile-section-header">
+                <h2 class="profile-section-title">Contact Details</h2>
+                <button class="profile-edit-btn" id="contactEditBtn">Edit</button>
+            </div>
+            <hr class="profile-section-divider">
+            <div class="profile-fields" id="contactDisplay">
+                <div class="profile-field-row">
+                    <span class="profile-field-label">Primary Email</span>
+                    <span class="profile-field-value" id="dContactEmail"></span>
+                </div>
+                <div class="profile-field-row">
+                    <span class="profile-field-label">Phone Number</span>
+                    <span class="profile-field-value" id="dPhone"></span>
+                </div>
+            </div>
+            <div class="profile-edit-form" id="contactEditForm" style="display:none;">
+                <div class="pf-group">
+                    <label class="pf-label" for="ePhone">Phone Number</label>
+                    <input class="pf-input" type="tel" id="ePhone"
+                           placeholder="e.g. +91 98765 43210" maxlength="20">
+                </div>
+                <p class="auth-hint" style="margin-bottom:10px;">
+                    Email address cannot be changed.
+                </p>
+                <div class="pf-actions">
+                    <button class="pf-save-btn"   id="contactSaveBtn">Save</button>
+                    <button class="pf-cancel-btn" id="contactCancelBtn">Cancel</button>
+                </div>
+                <p class="profile-section-msg" id="contactMsg"></p>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        const DEFAULT_PHOTO = "{{ url_for('static', filename='images/no profile.jpg') }}";
+        let profileData = {};
+        function showPageMsg(text, type = "danger") {
+            const el = document.getElementById("pageMsg");
+            el.textContent = text;
+            el.className   = "alert alert-" + type;
+            el.hidden      = false;
+            if (type === "success") {
+                setTimeout(function () { el.hidden = true; }, 3000);
+            }
+        }
+
+        function setSectionMsg(elId, text, type) {
+            const el = document.getElementById(elId);
+            el.textContent = text;
+            el.className   = "profile-section-msg " + type;
+        }
+
+        function display(value) {
+            if (!value || value.toString().trim() === "") {
+                return '<span class="profile-field-na">N/A</span>';
+            }
+            return value.toString()
+                .replace(/&/g,"&amp;")
+                .replace(/</g,"&lt;")
+                .replace(/>/g,"&gt;");
+        }
+        function formatDob(iso) {
+            if (!iso) return null;
+            const d = new Date(iso + "T00:00:00");
+            if (isNaN(d)) return iso;
+            return d.toLocaleDateString("en-GB", {
+                day: "numeric", month: "short", year: "numeric"
+            });
+        }
+
+        async function loadProfile() {
+            try {
+                const res = await fetch("/user/profile");
+                if (res.status === 401) { window.location.href = "/login"; return; }
+                if (!res.ok) { showPageMsg("Unable to load profile."); return; }
+
+                profileData = await res.json();
+                renderProfile();
+
+            } catch (e) {
+                showPageMsg("Unable to connect to the server.");
+            }
+        }
+
+        function renderProfile() {
+            const p = profileData;
+            document.getElementById("headerName").textContent =
+                p.full_name || "—";
+            document.getElementById("headerRole").textContent =
+                (p.role || "").replaceAll("_", " ");
+            const photoEl = document.getElementById("profilePhoto");
+            if (p.photo_path) {
+                photoEl.src = "/static/" + p.photo_path;
+            } else {
+                photoEl.src = DEFAULT_PHOTO;
+            }
+            photoEl.onerror = function () { this.src = DEFAULT_PHOTO; };
+            document.getElementById("dFullName").innerHTML = display(p.full_name);
+            document.getElementById("dEmail").innerHTML    = display(p.email);
+            document.getElementById("dRole").innerHTML     = display((p.role || "").replaceAll("_", " "));
+            document.getElementById("dCompany").innerHTML  = display(p.company_name);
+            document.getElementById("dBranch").innerHTML   = display(p.branch);
+            document.getElementById("dGender").innerHTML   = display(p.gender);
+            document.getElementById("dDob").innerHTML      = display(formatDob(p.date_of_birth));
+
+            document.getElementById("dContactEmail").innerHTML = display(p.email);
+            document.getElementById("dPhone").innerHTML        = display(p.phone);
+        }
+
+        document.getElementById("basicEditBtn").addEventListener("click", function () {
+            document.getElementById("eFullName").value = profileData.full_name || "";
+            document.getElementById("eCompany").value  = profileData.company_name || "";
+            document.getElementById("eBranch").value   = profileData.branch || "";
+            document.getElementById("eGender").value   = profileData.gender || "";
+            document.getElementById("eDob").value      = profileData.date_of_birth || "";
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            document.getElementById("eDob").max = yesterday.toISOString().split("T")[0];
+            document.getElementById("basicDisplay").style.display  = "none";
+            document.getElementById("basicEditForm").style.display = "block";
+            document.getElementById("basicEditBtn").style.display  = "none";
+            setSectionMsg("basicMsg", "", "");
+        });
+
+        document.getElementById("basicCancelBtn").addEventListener("click", function () {
+            document.getElementById("basicDisplay").style.display  = "block";
+            document.getElementById("basicEditForm").style.display = "none";
+            document.getElementById("basicEditBtn").style.display  = "inline";
+            setSectionMsg("basicMsg", "", "");
+        });
+
+        document.getElementById("basicSaveBtn").addEventListener("click", async function () {
+            const full_name    = document.getElementById("eFullName").value.trim();
+            const company_name = document.getElementById("eCompany").value.trim();
+            const branch       = document.getElementById("eBranch").value.trim();
+            const gender       = document.getElementById("eGender").value || null;
+            const dob          = document.getElementById("eDob").value || null;
+            const btn          = this;
+            if (!full_name) {
+                setSectionMsg("basicMsg", "Full name is required.", "error"); return;
+            }
+            if (!company_name) {
+                setSectionMsg("basicMsg", "Company name is required.", "error"); return;
+            }
+            if (!branch) {
+                setSectionMsg("basicMsg", "Branch is required.", "error"); return;
+            }
+            if (dob) {
+                const dobDate = new Date(dob + "T00:00:00");
+                const today   = new Date(); today.setHours(0,0,0,0);
+                if (dobDate >= today) {
+                    setSectionMsg("basicMsg", "Date of birth must be in the past.", "error");
+                    return;
+                }
+            }
+            btn.disabled = true;
+            try {
+                const res = await fetch("/user/profile", {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        full_name:     full_name,
+                        company_name:  company_name,
+                        branch:        branch,
+                        gender:        gender,
+                        date_of_birth: dob,
+                        phone: profileData.phone || null
+                    })
+                });
+
+                let result = {};
+                try { result = await res.json(); }
+                catch (e) {
+                    setSectionMsg("basicMsg", "Server error (HTTP " + res.status + "). Please try again.", "error");
+                    return;
+                }
+
+                if (!res.ok) {
+                    setSectionMsg("basicMsg", result.error || "Save failed.", "error");
+                    return;
+                }
+                profileData.full_name     = full_name;
+                profileData.company_name  = company_name;
+                profileData.branch        = branch;
+                profileData.gender        = gender;
+                profileData.date_of_birth = dob;
+                renderProfile();
+                document.getElementById("basicDisplay").style.display  = "block";
+                document.getElementById("basicEditForm").style.display = "none";
+                document.getElementById("basicEditBtn").style.display  = "inline";
+                setSectionMsg("basicMsg", "", "");
+                showPageMsg("Basic details saved.", "success");
+
+            } catch (e) {
+                setSectionMsg("basicMsg", "Unable to connect to the server.", "error");
+            } finally {
+                btn.disabled = false;
+            }
+        });
+
+        document.getElementById("contactEditBtn").addEventListener("click", function () {
+            document.getElementById("ePhone").value = profileData.phone || "";
+            document.getElementById("contactDisplay").style.display  = "none";
+            document.getElementById("contactEditForm").style.display = "block";
+            document.getElementById("contactEditBtn").style.display  = "none";
+            setSectionMsg("contactMsg", "", "");
+        });
+
+        document.getElementById("contactCancelBtn").addEventListener("click", function () {
+            document.getElementById("contactDisplay").style.display  = "block";
+            document.getElementById("contactEditForm").style.display = "none";
+            document.getElementById("contactEditBtn").style.display  = "inline";
+            setSectionMsg("contactMsg", "", "");
+        });
+
+        document.getElementById("contactSaveBtn").addEventListener("click", async function () {
+            const phone = document.getElementById("ePhone").value.trim() || null;
+            const btn   = this;
+
+            if (phone && phone.length > 20) {
+                setSectionMsg("contactMsg", "Phone number is too long.", "error"); return;
+            }
+
+            btn.disabled = true;
+            try {
+                const res = await fetch("/user/profile", {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        // Fixed: use null explicitly so JSON.stringify always includes the field
+                        full_name:     profileData.full_name     || "",
+                        company_name:  profileData.company_name  || "",
+                        branch:        profileData.branch        || "",
+                        gender:        profileData.gender        || null,
+                        date_of_birth: profileData.date_of_birth || null,
+                        phone:         phone
+                    })
+                });
+                let result = {};
+                try { result = await res.json(); }
+                catch (e) {
+                    setSectionMsg("contactMsg", "Server error (HTTP " + res.status + "). Please try again.", "error");
+                    return;
+                }
+                if (!res.ok) {
+                    setSectionMsg("contactMsg", result.error || "Save failed.", "error");
+                    return;
+                }
+                profileData.phone = phone;
+                renderProfile();
+                document.getElementById("contactDisplay").style.display  = "block";
+                document.getElementById("contactEditForm").style.display = "none";
+                document.getElementById("contactEditBtn").style.display  = "inline";
+                setSectionMsg("contactMsg", "", "");
+                showPageMsg("Contact details saved.", "success");
+
+            } catch (e) {
+                setSectionMsg("contactMsg", "Unable to connect to the server.", "error");
+            } finally {
+                btn.disabled = false;
+            }
+        });
+
+        document.getElementById("photoWrapper").addEventListener("click", function () {
+            document.getElementById("photoInput").click();
+        });
+
+        document.getElementById("photoInput").addEventListener("change", async function () {
+            const file = this.files[0];
+            if (!file) return;
+            const allowed = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+            if (!allowed.includes(file.type)) {
+                showPageMsg("Only JPG, PNG, and WEBP images are allowed.");
+                return;
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                showPageMsg("Image must be smaller than 5 MB.");
+                return;
+            }
+            const formData = new FormData();
+            formData.append("photo", file);
+            try {
+                const res    = await fetch("/user/profile/photo", {
+                    method: "POST",
+                    body:   formData
+                });
+                const result = await res.json();
+                if (!res.ok) {
+                    showPageMsg(result.error || "Upload failed.");
+                    return;
+                }
+                profileData.photo_path = result.photo_path;
+                const photoEl = document.getElementById("profilePhoto");
+                photoEl.src   = "/static/" + result.photo_path + "?t=" + Date.now();
+                showPageMsg("Profile photo updated.", "success");
+
+            } catch (e) {
+                showPageMsg("Unable to upload photo. Please try again.");
+            } finally {
+                this.value = "";
+            }
+        });
+
+        document.getElementById("logoutButton").addEventListener("click", async function () {
+            try {
+                const res = await fetch("/logout", { method: "POST" });
+                if (res.ok) { window.location.href = "/"; }
+            } catch (e) { showPageMsg("Logout failed."); }
+        });
+        // Sidebar logout
+        document.getElementById("sidebarLogout").addEventListener("click", async function () {
+            const res = await fetch("/logout", { method: "POST" });
+            if (res.ok) window.location.href = "/";
+        });
+
+        // Sidebar JS
+        const sidebar      = document.getElementById("sidebar");
+        const overlay      = document.getElementById("sidebarOverlay");
+        const hamburgerBtn = document.getElementById("hamburgerBtn");
+        const sidebarClose = document.getElementById("sidebarClose");
+        function openSidebar()  { sidebar.classList.add("open");    overlay.classList.add("open"); }
+        function closeSidebar() { sidebar.classList.remove("open"); overlay.classList.remove("open"); }
+        hamburgerBtn.addEventListener("click", openSidebar);
+        sidebarClose.addEventListener("click", closeSidebar);
+        overlay.addEventListener("click", closeSidebar);
+
+        loadProfile();
+    </script>
+</body>
+</html>

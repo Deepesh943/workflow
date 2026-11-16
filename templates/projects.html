@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projects - Smart Workflow</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+</head>
+<!-- Background image removed from Projects page; using clean theme background instead -->
+<body class="projects-page-clean">
+
+    <!-- ── Sidebar overlay ── -->
+    <div class="dash-sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ── Sidebar ── -->
+    <nav class="dash-sidebar" id="sidebar">
+        <div class="dash-sidebar-header">
+            <span class="dash-sidebar-title">Smart Workflow</span>
+            <button class="dash-sidebar-close" id="sidebarClose" aria-label="Close menu">&#10005;</button>
+        </div>
+        <ul class="dash-sidebar-nav">
+            <li>
+                <a href="/dashboard">
+                    <span class="dash-sidebar-icon">&#127968;</span> Home
+                </a>
+            </li>
+            <li>
+                <a href="/projects-page" class="active">
+                    <span class="dash-sidebar-icon">&#128193;</span> Projects
+                </a>
+            </li>
+            <li>
+                <a href="/about">
+                    <span class="dash-sidebar-icon">&#8505;&#65039;</span> About
+                </a>
+            </li>
+            <li>
+                <a href="/profile-page">
+                    <span class="dash-sidebar-icon">&#128100;</span> Profile
+                </a>
+            </li>
+            <li>
+                <button id="sidebarLogout">
+                    <span class="dash-sidebar-icon">&#128275;</span> Logout
+                </button>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- ── Top navbar ── -->
+    <header class="dash-navbar">
+        <div class="dash-navbar-left">
+            <button class="dash-hamburger" id="hamburgerBtn" aria-label="Open menu">
+                <span></span><span></span><span></span>
+            </button>
+            <a href="/dashboard" class="dash-brand">Smart Workflow</a>
+        </div>
+
+        <ul class="dash-nav-links">
+            <li><a href="/dashboard">Home</a></li>
+            <li><a href="/projects-page" class="active">Projects</a></li>
+            <li><a href="/about">About</a></li>
+
+        </ul>
+
+        <button class="dash-logout-btn" id="logoutButton">Logout</button>
+    </header>
+
+    <!-- ── Main content ── -->
+    <main class="projects-page-main-clean">
+        <h1 class="projects-page-heading-clean">Your Projects</h1>
+
+        <!-- White projects container -->
+        <div class="projects-container">
+
+            <div class="projects-container-header">
+                <h2 class="projects-container-title">All Projects</h2>
+                <!-- Create Project button — shown only to project_manager via JS -->
+                <button class="create-project-btn" id="toggleCreateForm"
+                        style="display:none;">+ Create Project</button>
+            </div>
+
+            <!-- Global message bar -->
+            <div class="projects-msg" id="pageMsg"></div>
+
+            <!-- Create project form — hidden by default, same workflow as before -->
+            <div class="create-form-card" id="createFormCard" style="display:none;">
+                <h3 style="font-size:1rem;font-weight:700;color:#263449;margin:0 0 16px;">
+                    New Project
+                </h3>
+                <form id="createProjectForm">
+
+                    <div style="margin-bottom:14px;">
+                        <label for="project_name"
+                               style="display:block;font-size:0.85rem;font-weight:600;
+                                      color:#263449;margin-bottom:5px;">
+                            Project Name <span style="color:#dc3545;">*</span>
+                        </label>
+                        <input type="text" id="project_name" name="project_name"
+                               placeholder="Enter project name"
+                               style="display:block;width:100%;padding:8px 12px;
+                                      font-size:0.9rem;border:1px solid #ced4da;
+                                      border-radius:6px;box-sizing:border-box;outline:none;"
+                               required>
+                    </div>
+
+                    <div style="margin-bottom:14px;">
+                        <label for="project_description"
+                               style="display:block;font-size:0.85rem;font-weight:600;
+                                      color:#263449;margin-bottom:5px;">
+                            Description
+                        </label>
+                        <textarea id="project_description" name="description"
+                                  rows="3" placeholder="Enter project description"
+                                  style="display:block;width:100%;padding:8px 12px;
+                                         font-size:0.9rem;border:1px solid #ced4da;
+                                         border-radius:6px;box-sizing:border-box;
+                                         resize:vertical;outline:none;"></textarea>
+                    </div>
+
+                    <!-- Member search — same logic as the existing dashboard form -->
+                    <div style="margin-bottom:14px;">
+                        <label style="display:block;font-size:0.85rem;font-weight:600;
+                                      color:#263449;margin-bottom:5px;">
+                            Add Members (optional)
+                        </label>
+                        <div style="position:relative;">
+                            <input type="text" id="memberSearchInput"
+                                   placeholder="Type a name to search people..."
+                                   autocomplete="off"
+                                   style="display:block;width:100%;padding:8px 12px;
+                                          font-size:0.9rem;border:1px solid #ced4da;
+                                          border-radius:6px;box-sizing:border-box;outline:none;">
+                            <div id="memberSearchDropdown"
+                                 class="proj-search-dropdown" style="display:none;"></div>
+                        </div>
+                        <div id="selectedMembersContainer"
+                             style="min-height:36px;padding:4px;margin-top:6px;
+                                    border:1px solid #dee2e6;border-radius:6px;
+                                    background:#fafafa;"></div>
+                        <small style="color:#6c757d;font-size:0.78rem;">
+                            Only people from your company appear. You are added automatically.
+                        </small>
+                    </div>
+
+                    <button type="submit" id="submitProjectButton"
+                            class="create-project-btn">Save Project</button>
+                    <button type="button" id="cancelProjectButton"
+                            style="margin-left:10px;padding:8px 16px;background:#e9ecef;
+                                   color:#495057;border:none;border-radius:8px;
+                                   font-size:0.875rem;font-weight:600;cursor:pointer;">
+                        Cancel
+                    </button>
+
+                </form>
+            </div>
+
+            <!-- Projects grid — all accessible projects -->
+            <div class="projects-grid" id="projectsGrid">
+                <div style="color:#6c757d;font-size:0.9rem;">Loading projects...</div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // ── Sidebar ────────────────────────────────────────────────
+        const sidebar      = document.getElementById("sidebar");
+        const overlay      = document.getElementById("sidebarOverlay");
+        const hamburgerBtn = document.getElementById("hamburgerBtn");
+        const sidebarClose = document.getElementById("sidebarClose");
+
+        function openSidebar()  { sidebar.classList.add("open"); overlay.classList.add("open"); }
+        function closeSidebar() { sidebar.classList.remove("open"); overlay.classList.remove("open"); }
+
+        hamburgerBtn.addEventListener("click", openSidebar);
+        sidebarClose.addEventListener("click", closeSidebar);
+        overlay.addEventListener("click", closeSidebar);
+
+        // ── Logout ─────────────────────────────────────────────────
+        async function doLogout() {
+            try {
+                const res = await fetch("/logout", { method: "POST" });
+                if (res.ok) { window.location.href = "/"; }
+            } catch (e) { showMsg("Logout failed.", "error"); }
+        }
+        document.getElementById("logoutButton").addEventListener("click", doLogout);
+        document.getElementById("sidebarLogout").addEventListener("click", doLogout);
+
+        // ── Message bar ────────────────────────────────────────────
+        function showMsg(text, type) {
+            const el = document.getElementById("pageMsg");
+            el.textContent = text;
+            el.className   = "projects-msg " + type;
+            if (type === "success") {
+                setTimeout(function() { el.className = "projects-msg"; }, 3000);
+            }
+        }
+
+        // ── Check role to show/hide Create Project button ──────────
+        async function checkRole() {
+            try {
+                const res = await fetch("/profile");
+                if (res.status === 401) { window.location.href = "/login"; return; }
+                if (!res.ok) return;
+                const data = await res.json();
+                if (data.role === "project_manager") {
+                    document.getElementById("toggleCreateForm").style.display = "inline-block";
+                }
+            } catch (e) { /* silently skip */ }
+        }
+
+        // ── Load all accessible projects ───────────────────────────
+        async function loadProjects() {
+            const grid = document.getElementById("projectsGrid");
+            try {
+                const res = await fetch("/projects");
+                if (res.status === 401) { window.location.href = "/login"; return; }
+                if (!res.ok) {
+                    grid.innerHTML = '<p style="color:#dc3545;">Unable to load projects.</p>';
+                    return;
+                }
+                const projects = await res.json();
+                grid.innerHTML = "";
+
+                if (projects.length === 0) {
+                    grid.innerHTML =
+                        '<p style="color:#6c757d;font-size:0.9rem;">' +
+                        'You have no projects yet. Create one to get started.</p>';
+                    return;
+                }
+
+                projects.forEach(function(project) {
+                    const card = document.createElement("div");
+                    card.className = "proj-card";
+
+                    const title = document.createElement("h3");
+                    title.className   = "proj-card-title";
+                    title.textContent = project.project_name || "Untitled Project";
+
+                    const desc = document.createElement("p");
+                    desc.className   = "proj-card-desc";
+                    desc.textContent = project.description || "No description provided.";
+
+                    // Button row: Open Project + Remove side by side
+                    const actions = document.createElement("div");
+                    actions.className = "proj-card-actions";
+
+                    const openBtn = document.createElement("a");
+                    openBtn.className   = "dash-open-btn";
+                    openBtn.textContent = "Open Project";
+                    openBtn.href        = "/project/" + project.id;
+
+                    // Added: Remove button — removes this project from the current user's
+                    // account only. Other members and the project itself are unaffected.
+                    const removeBtn = document.createElement("button");
+                    removeBtn.className = "proj-remove-btn";
+                    removeBtn.type      = "button";
+                    removeBtn.innerHTML = "Remove &#128465;";
+
+                    removeBtn.addEventListener("click", async function() {
+                        const confirmed = window.confirm(
+                            "Remove \"" + (project.project_name || "this project") +
+                            "\" from your account?\n\n" +
+                            "Other members will still have access. " +
+                            "This does not delete the project."
+                        );
+                        if (!confirmed) return;
+
+                        removeBtn.disabled = true;
+                        try {
+                            const res = await fetch(
+                                "/projects/" + project.id + "/leave",
+                                { method: "DELETE" }
+                            );
+                            let result = {};
+                            try { result = await res.json(); } catch (_) {}
+                            if (!res.ok) {
+                                showMsg(result.error || "Failed to remove project.", "error");
+                                removeBtn.disabled = false;
+                                return;
+                            }
+                            // Remove the card from the DOM immediately
+                            card.remove();
+                            showMsg(
+                                "\"" + (project.project_name || "Project") +
+                                "\" removed from your account.",
+                                "success"
+                            );
+                        } catch (e) {
+                            showMsg("Unable to connect to the server.", "error");
+                            removeBtn.disabled = false;
+                        }
+                    });
+
+                    actions.appendChild(openBtn);
+                    actions.appendChild(removeBtn);
+
+                    card.appendChild(title);
+                    card.appendChild(desc);
+                    card.appendChild(actions);
+                    grid.appendChild(card);
+                });
+
+            } catch (e) {
+                grid.innerHTML =
+                    '<p style="color:#dc3545;">Unable to connect to the server.</p>';
+            }
+        }
+
+        // ── Toggle create form ─────────────────────────────────────
+        document.getElementById("toggleCreateForm").addEventListener("click", function() {
+            const card = document.getElementById("createFormCard");
+            card.style.display = card.style.display === "none" ? "block" : "none";
+        });
+
+        document.getElementById("cancelProjectButton").addEventListener("click", function() {
+            document.getElementById("createProjectForm").reset();
+            document.getElementById("createFormCard").style.display = "none";
+            selectedMembers.length = 0;
+            renderSelectedTags();
+            document.getElementById("memberSearchDropdown").style.display = "none";
+        });
+
+        // ── Member search (same logic as existing dashboard form) ──
+
+        const selectedMembers = [];
+        let searchTimer = null;
+        const memberSearchInput    = document.getElementById("memberSearchInput");
+        const memberSearchDropdown = document.getElementById("memberSearchDropdown");
+        const selectedMembersContainer = document.getElementById("selectedMembersContainer");
+
+        memberSearchInput.addEventListener("input", function() {
+            clearTimeout(searchTimer);
+            const text = memberSearchInput.value.trim();
+            if (text.length === 0) { memberSearchDropdown.style.display = "none"; return; }
+            searchTimer = setTimeout(function() { fetchSuggestions(text); }, 300);
+        });
+
+        document.addEventListener("click", function(e) {
+            if (!memberSearchInput.contains(e.target) &&
+                !memberSearchDropdown.contains(e.target)) {
+                memberSearchDropdown.style.display = "none";
+            }
+        });
+
+        async function fetchSuggestions(text) {
+            try {
+                const res = await fetch(
+                    "/profile/search?search_text=" + encodeURIComponent(text)
+                );
+                if (!res.ok) { memberSearchDropdown.style.display = "none"; return; }
+                const users = await res.json();
+                renderDropdown(users, text);
+            } catch (e) { memberSearchDropdown.style.display = "none"; }
+        }
+
+        function highlightMatch(name, search) {
+            if (!search) return name;
+            const idx = name.toLowerCase().indexOf(search.toLowerCase());
+            if (idx === -1) return name;
+            return (
+                name.slice(0, idx) +
+                "<mark style='padding:0;'>" + name.slice(idx, idx + search.length) + "</mark>" +
+                name.slice(idx + search.length)
+            );
+        }
+
+        function renderDropdown(users, searchText) {
+            memberSearchDropdown.innerHTML = "";
+            const filtered = users.filter(function(u) {
+                return !selectedMembers.some(function(s) { return s.id === u.id; });
+            });
+
+            if (filtered.length === 0) {
+                const noResult = document.createElement("div");
+                noResult.className   = "proj-search-dropdown-item";
+                noResult.style.color = "#6c757d";
+                noResult.textContent = "No matching people found.";
+                memberSearchDropdown.appendChild(noResult);
+                memberSearchDropdown.style.display = "block";
+                return;
+            }
+
+            filtered.forEach(function(user) {
+                const item = document.createElement("div");
+                item.className = "proj-search-dropdown-item";
+
+                const nameLine = document.createElement("div");
+                nameLine.style.fontWeight = "600";
+                nameLine.style.fontSize   = "0.9rem";
+                nameLine.innerHTML = highlightMatch(user.full_name || "", searchText);
+
+                const detailLine = document.createElement("div");
+                detailLine.style.fontSize = "0.78rem";
+                detailLine.style.color    = "#6c757d";
+                detailLine.textContent =
+                    (user.role || "").replaceAll("_", " ") +
+                    " | " + (user.company_name || "") +
+                    " | " + (user.branch || "");
+
+                const textDiv = document.createElement("div");
+                textDiv.appendChild(nameLine);
+                textDiv.appendChild(detailLine);
+                item.appendChild(textDiv);
+
+                item.addEventListener("click", function() {
+                    addSelectedMember(user);
+                    memberSearchInput.value = "";
+                    memberSearchDropdown.style.display = "none";
+                });
+
+                memberSearchDropdown.appendChild(item);
+            });
+
+            memberSearchDropdown.style.display = "block";
+        }
+
+        function addSelectedMember(user) {
+            if (selectedMembers.some(function(s) { return s.id === user.id; })) return;
+            selectedMembers.push({ id: user.id, full_name: user.full_name });
+            renderSelectedTags();
+        }
+
+        function renderSelectedTags() {
+            selectedMembersContainer.innerHTML = "";
+            selectedMembers.forEach(function(member) {
+                const tag = document.createElement("span");
+                tag.style.cssText = "display:inline-flex;align-items:center;" +
+                    "background:#e7f0ff;border:1px solid #b3cffb;border-radius:20px;" +
+                    "padding:3px 10px 3px 12px;margin:3px;font-size:0.85rem;";
+                tag.textContent = member.full_name;
+
+                const removeBtn = document.createElement("button");
+                removeBtn.textContent = "×";
+                removeBtn.type = "button";
+                removeBtn.style.cssText = "background:none;border:none;cursor:pointer;" +
+                    "color:#888;margin-left:6px;font-size:1rem;line-height:1;padding:0;";
+                removeBtn.setAttribute("aria-label", "Remove " + member.full_name);
+                removeBtn.addEventListener("click", function() {
+                    const idx = selectedMembers.findIndex(function(s) { return s.id === member.id; });
+                    if (idx !== -1) selectedMembers.splice(idx, 1);
+                    renderSelectedTags();
+                });
+
+                tag.appendChild(removeBtn);
+                selectedMembersContainer.appendChild(tag);
+            });
+        }
+
+        // ── Create project form submit ─────────────────────────────
+        document.getElementById("createProjectForm").addEventListener("submit", async function(e) {
+            e.preventDefault();
+
+            const projectName = document.getElementById("project_name").value.trim();
+            const description = document.getElementById("project_description").value.trim();
+            const submitBtn   = document.getElementById("submitProjectButton");
+
+            if (!projectName) { showMsg("Please enter a project name.", "error"); return; }
+
+            submitBtn.disabled = true;
+
+            try {
+                // Step 1: create the project using the existing endpoint
+                const createRes = await fetch("/projects", {
+                    method:  "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body:    JSON.stringify({ project_name: projectName, description: description })
+                });
+
+                let createResult = {};
+                try { createResult = await createRes.json(); } catch (_) {}
+
+                if (createRes.status === 401) { window.location.href = "/login"; return; }
+                if (!createRes.ok) {
+                    showMsg(createResult.error || "Unable to create project.", "error");
+                    return;
+                }
+
+                const newProjectId = createResult.project_id;
+
+                // Step 2: add selected members using the existing endpoint
+                let memberErrors = [];
+                for (const member of selectedMembers) {
+                    const addRes = await fetch("/projects/" + newProjectId + "/members", {
+                        method:  "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body:    JSON.stringify({ user_id: member.id })
+                    });
+                    if (!addRes.ok) {
+                        let addResult = {};
+                        try { addResult = await addRes.json(); } catch (_) {}
+                        memberErrors.push(member.full_name + ": " + (addResult.error || "Failed"));
+                    }
+                }
+
+                // Reset form and close it
+                document.getElementById("createProjectForm").reset();
+                document.getElementById("createFormCard").style.display = "none";
+                selectedMembers.length = 0;
+                renderSelectedTags();
+
+                if (memberErrors.length > 0) {
+                    showMsg(
+                        "Project created but some members could not be added: " +
+                        memberErrors.join("; "),
+                        "error"
+                    );
+                } else {
+                    showMsg("Project created successfully!", "success");
+                }
+
+                // Refresh the project list
+                await loadProjects();
+
+            } catch (e) {
+                showMsg("Unable to connect to the server.", "error");
+            } finally {
+                submitBtn.disabled = false;
+            }
+        });
+
+        // ── Init ──────────────────────────────────────────────────
+        checkRole();
+        loadProjects();
+    </script>
+</body>
+</html>

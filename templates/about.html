@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - Smart Workflow</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+    <style>
+        /* About page uses the same dark navbar and sidebar as the dashboard.
+           The page body has a light background for readability. */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f5f7fb;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                         "Helvetica Neue", Arial, sans-serif;
+            color: #333;
+        }
+
+
+        /* ── Section cards — white rounded cards similar to dashboard project section ── */
+        /* Main About page container */
+        .about-main {
+            width: 100%;
+            max-width: none;
+            margin: 0;
+            padding: 40px 7%;
+            box-sizing: border-box;
+        }
+
+        /* Continuous sections instead of separate cards */
+        .about-section {
+            width: 100%;
+            background: transparent;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+
+            border-radius: 0;
+            box-shadow: none;
+
+            padding: 30px 0;
+            margin: 0;
+
+            border-bottom: 1px solid #e1e6ed;
+        }
+
+        /* Remove the separator after the last section */
+        .about-section:last-child {
+            border-bottom: none;
+        }
+
+        .about-section h2 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #263449;
+            margin: 0 0 16px;
+        }
+
+        .about-section h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #355c7d;
+            margin: 24px 0 8px;
+        }
+
+        .about-section p {
+            font-size: 0.92rem;
+            line-height: 1.75;
+            color: #495057;
+            margin: 0 0 14px;
+        }
+
+        .about-section ul {
+            padding-left: 20px;
+            margin: 8px 0 16px;
+        }
+
+        .about-section li {
+            font-size: 0.9rem;
+            line-height: 1.8;
+            color: #495057;
+        }
+
+        .about-section li strong { color: #263449; }
+
+        /* ── Numbered steps ── */
+        .about-step {
+            display: flex;
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+        .about-step-num {
+            flex-shrink: 0;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #355c7d;
+            color: #fff;
+            font-size: 0.85rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .about-step-body h3 { margin: 2px 0 4px; }
+        .about-step-body p  { margin: 0; }
+
+        /* ── Tagline at the bottom ── */
+        .about-tagline {
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #263449;
+            padding: 16px 0 8px;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 600px) {
+            .about-main {
+                padding: 24px 20px 40px;
+            }
+
+            .about-section {
+                padding: 24px 0;
+            }
+
+            .about-section h2 {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body class="about-page">
+
+    <!-- Sidebar overlay -->
+    <div class="dash-sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ── Sidebar — identical to dashboard ── -->
+    <nav class="dash-sidebar" id="sidebar">
+        <div class="dash-sidebar-header">
+            <span class="dash-sidebar-title">Workflow</span>
+            <button class="dash-sidebar-close" id="sidebarClose" aria-label="Close menu">&#10005;</button>
+        </div>
+        <ul class="dash-sidebar-nav">
+            <li>
+                <a href="/dashboard">
+                    <span class="dash-sidebar-icon">&#127968;</span> Home
+                </a>
+            </li>
+            <li>
+                <a href="/projects-page">
+                    <span class="dash-sidebar-icon">&#128193;</span> Projects
+                </a>
+            </li>
+            <li>
+                <a href="/about" class="active">
+                    <span class="dash-sidebar-icon">&#8505;&#65039;</span> About
+                </a>
+            </li>
+            <li>
+                <a href="/profile-page">
+                    <span class="dash-sidebar-icon">&#128100;</span> Profile
+                </a>
+            </li>
+            <li>
+                <button id="sidebarLogout">
+                    <span class="dash-sidebar-icon">&#128275;</span> Logout
+                </button>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- ── Top navbar — identical to dashboard ── -->
+    <header class="dash-navbar">
+        <div class="dash-navbar-left">
+            <button class="dash-hamburger" id="hamburgerBtn" aria-label="Open menu">
+                <span></span><span></span><span></span>
+            </button>
+            <a href="/dashboard" class="dash-brand">Workflow</a>
+        </div>
+        <ul class="dash-nav-links">
+            <li><a href="/dashboard">Home</a></li>
+            <li><a href="/projects-page">Projects</a></li>
+            <li><a href="/about" class="active">About</a></li>
+        </ul>
+        <button class="dash-logout-btn" id="logoutButton">Logout</button>
+    </header>
+
+    <!-- ── About content ── -->
+    <main class="about-main">
+
+        <!-- Intro section -->
+        <div class="about-section">
+            <h2>About Workflow</h2>
+            <h3>Simplify Your Work. Organize Your Projects. Achieve Your Goals.</h3>
+            <p>
+                Smart Workflow is a web-based project and task management application
+                designed to help teams organize projects, assign responsibilities,
+                track task progress, and collaborate efficiently in one place.
+            </p>
+            <p>
+                The application provides role-based access for Project Managers,
+                Team Leaders, and Team Members, ensuring that everyone can manage
+                and monitor their work according to their responsibilities.
+            </p>
+        </div>
+
+        <!-- How it works -->
+        <div class="about-section">
+            <h2>How Smart Workflow Works</h2>
+
+            <div class="about-step">
+                <div class="about-step-num">1</div>
+                <div class="about-step-body">
+                    <h3>Create Your Account</h3>
+                    <p>Register with your details, select your role, and log in to access your personalized dashboard.</p>
+                </div>
+            </div>
+
+            <div class="about-step">
+                <div class="about-step-num">2</div>
+                <div class="about-step-body">
+                    <h3>Manage Projects</h3>
+                    <p>Project Managers can create projects, provide project descriptions, and organize team members around project goals.</p>
+                </div>
+            </div>
+
+            <div class="about-step">
+                <div class="about-step-num">3</div>
+                <div class="about-step-body">
+                    <h3>Build Your Team</h3>
+                    <p>Authorized Project Managers and Team Leaders can add eligible colleagues from the same company to a project.</p>
+                </div>
+            </div>
+
+            <div class="about-step">
+                <div class="about-step-num">4</div>
+                <div class="about-step-body">
+                    <h3>Create and Assign Tasks</h3>
+                    <p>Project Managers and Team Leaders can create tasks, set priorities, select assignees, and define task statuses to keep work organized.</p>
+                </div>
+            </div>
+
+            <div class="about-step">
+                <div class="about-step-num">5</div>
+                <div class="about-step-body">
+                    <h3>Track Task Progress</h3>
+                    <p>Monitor tasks based on their current status. View ongoing tasks by default and switch to completed tasks whenever you need to review finished work.</p>
+                </div>
+            </div>
+
+            <div class="about-step">
+                <div class="about-step-num">6</div>
+                <div class="about-step-body">
+                    <h3>Collaborate with Your Team</h3>
+                    <p>View project members, check assigned responsibilities, and keep project activities organized in one centralized workspace.</p>
+                </div>
+            </div>
+
+            <div class="about-step">
+                <div class="about-step-num">7</div>
+                <div class="about-step-body">
+                    <h3>Manage Your Profile</h3>
+                    <p>Update your personal details, contact information, date of birth, and profile picture to keep your account information up to date.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- User roles -->
+        <div class="about-section">
+            <h2>User Roles and Responsibilities</h2>
+
+            <h3>Project Manager</h3>
+            <p>The Project Manager is responsible for creating projects and overseeing their organization and progress.</p>
+            <ul>
+                <li>Create and manage projects.</li>
+                <li>Add team members to projects.</li>
+                <li>Create and assign tasks.</li>
+                <li>Set task priorities and monitor task progress.</li>
+                <li>Coordinate project activities and ensure work stays organized.</li>
+            </ul>
+
+            <h3>Team Leader</h3>
+            <p>The Team Leader helps coordinate project activities and supports team members in completing assigned work.</p>
+            <ul>
+                <li>Participate in assigned projects.</li>
+                <li>Add eligible members to projects where authorized.</li>
+                <li>Create and assign tasks.</li>
+                <li>Help coordinate team activities.</li>
+                <li>Monitor assigned tasks and support project progress.</li>
+            </ul>
+
+            <h3>Team Member</h3>
+            <p>
+                The Team Member role includes all employees who are not assigned the
+                Project Manager or Team Leader role, regardless of their job title or
+                experience level.
+            </p>
+            <p>Examples of team members include:</p>
+            <ul>
+                <li>Senior Developers</li>
+                <li>Junior Developers</li>
+                <li>Software Developers</li>
+                <li>Frontend and Backend Developers</li>
+                <li>Testers and QA Engineers</li>
+                <li>Interns and Trainees</li>
+                <li>Other team employees who are not Project Managers or Team Leaders</li>
+            </ul>
+            <p><strong>Responsibilities:</strong></p>
+            <ul>
+                <li>View projects and tasks available to them.</li>
+                <li>Access tasks assigned to them.</li>
+                <li>Update task information where permitted.</li>
+                <li>Track ongoing and completed tasks.</li>
+                <li>Collaborate with colleagues to achieve project goals.</li>
+            </ul>
+            <p>
+                In Smart Workflow, job titles and experience levels do not determine the
+                application role. For example, both Senior Developers and Junior Developers
+                are considered Team Members unless they are assigned the Project Manager
+                or Team Leader role.
+            </p>
+        </div>
+
+        <!-- Why choose -->
+        <div class="about-section">
+            <h2>Why Choose Smart Workflow?</h2>
+            <ul>
+                <li><strong>Centralized Management:</strong> Keep projects, tasks, and team information in one place.</li>
+                <li><strong>Clear Responsibilities:</strong> Assign tasks to appropriate team members and establish clear ownership.</li>
+                <li><strong>Progress Tracking:</strong> Easily distinguish ongoing tasks from completed tasks.</li>
+                <li><strong>Role-Based Access:</strong> Provide access according to each user's responsibilities.</li>
+                <li><strong>Team Collaboration:</strong> Help team members coordinate their work and stay informed about project activities.</li>
+                <li><strong>Simple Interface:</strong> Navigate between projects, team members, tasks, and profile settings with ease.</li>
+            </ul>
+        </div>
+
+        <!-- Goal -->
+        <div class="about-section">
+            <h2>Our Goal</h2>
+            <p>
+                Our goal is to make project management simpler, improve team coordination,
+                and help users complete their work efficiently through a clear and
+                organized workflow.
+            </p>
+            <div class="about-tagline">
+                Smart Workflow — Plan Better. Work Smarter. Achieve More.
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // ── Sidebar — identical to dashboard ──────────────────────
+        const sidebar      = document.getElementById("sidebar");
+        const overlay      = document.getElementById("sidebarOverlay");
+        const hamburgerBtn = document.getElementById("hamburgerBtn");
+        const sidebarClose = document.getElementById("sidebarClose");
+
+        function openSidebar() {
+            sidebar.classList.add("open");
+            overlay.classList.add("open");
+        }
+        function closeSidebar() {
+            sidebar.classList.remove("open");
+            overlay.classList.remove("open");
+        }
+
+        hamburgerBtn.addEventListener("click", openSidebar);
+        sidebarClose.addEventListener("click", closeSidebar);
+        overlay.addEventListener("click", closeSidebar);
+
+        // ── Logout — same as dashboard ────────────────────────────
+        async function doLogout() {
+            try {
+                const res = await fetch("/logout", { method: "POST" });
+                if (res.ok) { window.location.href = "/"; }
+            } catch (e) { alert("Logout failed. Please try again."); }
+        }
+        document.getElementById("logoutButton").addEventListener("click", doLogout);
+        document.getElementById("sidebarLogout").addEventListener("click", doLogout);
+    </script>
+
+</body>
+</html>

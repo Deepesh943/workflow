@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Tasks - Smart Workflow</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+    <style>
+        body { background-color: #f5f7fb; margin: 0; padding: 0; }
+
+        .task-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            background: #fff;
+            border: 1px solid #e3e8ef;
+            border-radius: 8px;
+            padding: 14px 20px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            gap: 10px;
+        }
+        .task-info  { flex: 1; min-width: 0; }
+        .task-title { font-weight: 600; font-size: 1rem; color: #263449; margin-bottom: 2px; }
+        .task-meta  { font-size: 0.8rem; color: #6c757d; }
+        .task-assignees { font-size: 0.82rem; color: #495057; margin-top: 3px; }
+        .task-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; flex-wrap: wrap; }
+
+        .task-badge {
+            display: inline-block;
+            border-radius: 12px;
+            padding: 3px 11px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .status-select {
+            font-size: 0.8rem;
+            padding: 2px 6px;
+            border-radius: 6px;
+            border: 1px solid #ced4da;
+            background: #fff;
+            cursor: pointer;
+        }
+
+        /* Ongoing / Completed tabs — side by side */
+        .task-tabs {
+            display: flex;
+            gap: 0;
+            margin: 24px 0 16px;
+            border-bottom: 2px solid #e3e8ef;
+        }
+        .task-tab {
+            padding: 10px 24px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #6c757d;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            transition: color 0.18s, border-color 0.18s;
+            margin-bottom: -2px;
+        }
+        .task-tab:hover { color: #263449; }
+        .task-tab.active {
+            color: #263449;
+            border-bottom-color: #263449;
+        }
+        .task-tab.completed-tab.active {
+            color: #28a745;
+            border-bottom-color: #28a745;
+        }
+
+        /* Multi-select assignee checkboxes in the form */
+        .assignee-list {
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            max-height: 150px;
+            overflow-y: auto;
+            padding: 6px 10px;
+            background: #fff;
+        }
+        .assignee-list label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 0;
+            font-size: 0.875rem;
+            cursor: pointer;
+        }
+        .assignee-list label:hover { color: #263449; }
+    </style>
+</head>
+<body class="tasks-page">
+
+    <!-- Navbar — matches dashboard -->
+    <div class="dash-sidebar-overlay" id="sidebarOverlay"></div>
+
+    <nav class="dash-sidebar" id="sidebar">
+        <div class="dash-sidebar-header">
+            <span class="dash-sidebar-title">Smart Workflow</span>
+            <button class="dash-sidebar-close" id="sidebarClose" aria-label="Close menu">&#10005;</button>
+        </div>
+        <ul class="dash-sidebar-nav">
+            <li><a href="/dashboard"><span class="dash-sidebar-icon">&#127968;</span> Home</a></li>
+            <li><a href="/projects-page" class="active"><span class="dash-sidebar-icon">&#128193;</span> Projects</a></li>
+            <li><a href="/about"><span class="dash-sidebar-icon">&#8505;&#65039;</span> About</a></li>
+            <li><a href="/profile-page"><span class="dash-sidebar-icon">&#128100;</span> Profile</a></li>
+            <li><button id="sidebarLogout"><span class="dash-sidebar-icon">&#128275;</span> Logout</button></li>
+        </ul>
+    </nav>
+
+    <header class="dash-navbar">
+        <div class="dash-navbar-left">
+            <button class="dash-hamburger" id="hamburgerBtn" aria-label="Open menu">
+                <span></span><span></span><span></span>
+            </button>
+            <a href="/dashboard" class="dash-brand">Workflow</a>
+        </div>
+        <ul class="dash-nav-links">
+            <li><a href="/dashboard">Home</a></li>
+            <li><a href="/projects-page" class="active">Projects</a></li>
+            <li><a href="/about" class="active">About</a></li>
+        </ul>
+        <button class="dash-logout-btn" id="logoutButton">Logout</button>
+    </header>
+
+    <main class="container py-5">
+
+        <div class="d-flex justify-content-between align-items-center mb-1 flex-wrap gap-2">
+            <h1 class="fw-bold mb-0" style="color:#263449;">Project Tasks</h1>
+            <!-- Shown only to PM and TL -->
+            <button type="button" id="toggleCreateForm" class="btn btn-primary" hidden>
+                + Create Task
+            </button>
+        </div>
+        <p class="text-muted mb-4">View tasks, priorities, and current progress for this project.</p>
+
+        <!-- Create task form -->
+        <div id="createTaskCard" class="card shadow-sm border-0 mb-4" hidden>
+            <div class="card-body">
+                <h5 class="fw-semibold mb-3">New Task</h5>
+                <!-- autocomplete="off" disables browser saved-history suggestions on the form -->
+                <form id="createTaskForm" autocomplete="off">
+
+                    <div class="mb-3">
+                        <label for="taskTitle" class="form-label">Title <span class="text-danger">*</span></label>
+                        <!-- autocomplete="off" on the input directly targets browser autocomplete -->
+                        <input type="text" class="form-control" id="taskTitle"
+                            placeholder="Enter task title" required maxlength="50"
+                            autocomplete="off">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="taskDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="taskDescription"
+                            rows="2" placeholder="Optional description"></textarea>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-sm-6">
+                            <label for="taskPriority" class="form-label">Priority</label>
+                            <select class="form-select" id="taskPriority">
+                                <option value="Low">Low</option>
+                                <option value="Medium" selected>Medium</option>
+                                <option value="High">High</option>
+                                <option value="Critical">Critical</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-6">
+                            <!-- Multi-select assignees via checkboxes -->
+                            <label class="form-label">Assign To</label>
+                            <div class="assignee-list" id="createAssigneeList">
+                                <span class="text-muted" style="font-size:0.85rem;">Loading members...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="createTaskBtn" class="btn btn-success">Save Task</button>
+                    <button type="button" id="cancelCreateBtn" class="btn btn-secondary ms-2">Cancel</button>
+
+                </form>
+            </div>
+        </div>
+
+        <!-- Edit task form -->
+        <div id="editTaskCard" class="card shadow-sm border-0 mb-4 border-warning" hidden>
+            <div class="card-body">
+                <h5 class="fw-semibold mb-3">Edit Task</h5>
+                <form id="editTaskForm" autocomplete="off">
+                    <input type="hidden" id="editTaskId">
+
+                    <div class="mb-3">
+                        <label for="editTaskTitle" class="form-label">Title <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="editTaskTitle"
+                            placeholder="Task title" required maxlength="50" autocomplete="off">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editTaskDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="editTaskDescription" rows="2"></textarea>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-sm-4">
+                            <label for="editTaskPriority" class="form-label">Priority</label>
+                            <select class="form-select" id="editTaskPriority">
+                                <option value="Low">Low</option>
+                                <option value="Medium">Medium</option>
+                                <option value="High">High</option>
+                                <option value="Critical">Critical</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-4">
+                            <label for="editTaskStatus" class="form-label">Status</label>
+                            <select class="form-select" id="editTaskStatus">
+                                <option value="Pending">Pending</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Blocked">Blocked</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-4">
+                            <label class="form-label">Assign To</label>
+                            <div class="assignee-list" id="editAssigneeList">
+                                <span class="text-muted" style="font-size:0.85rem;">Loading members...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="saveEditBtn" class="btn btn-warning">Save Changes</button>
+                    <button type="button" id="cancelEditBtn" class="btn btn-secondary ms-2">Cancel</button>
+
+                </form>
+            </div>
+        </div>
+
+        <!-- Global message bar -->
+        <div id="pageMessage" class="alert mb-3" hidden></div>
+
+        <!-- Tab buttons: Ongoing and Completed side by side -->
+        <div class="task-tabs">
+            <button class="task-tab active" id="tabOngoing">
+                Ongoing Tasks <span id="ongoingCount">(0)</span>
+            </button>
+            <button class="task-tab completed-tab" id="tabCompleted">
+                Completed Tasks <span id="completedCount">(0)</span>
+            </button>
+        </div>
+
+        <!-- Ongoing task list (shown by default) -->
+        <div id="ongoingList">
+            <p class="text-muted">Loading...</p>
+        </div>
+
+        <!-- Completed task list (hidden by default) -->
+        <div id="completedList" style="display:none;">
+            <p class="text-muted">Loading...</p>
+        </div>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+
+        const urlParts  = window.location.pathname.split("/");
+        const projectId = urlParts[2];
+
+        let currentUserRole = "";
+        let currentUserId   = null;
+        let projectMembers  = [];
+
+        // ── Helpers ──────────────────────────────────────────────
+
+        function showMessage(text, type = "danger") {
+            const el = document.getElementById("pageMessage");
+            el.textContent = text;
+            el.className   = "alert alert-" + type;
+            el.hidden      = false;
+            if (type === "success") {
+                setTimeout(function() { el.hidden = true; }, 3000);
+            }
+        }
+
+        function statusClass(status) {
+            const map = {
+                "Pending":     "badge-status-pending",
+                "In Progress": "badge-status-inprogress",
+                "Completed":   "badge-status-completed",
+                "Blocked":     "badge-status-blocked"
+            };
+            return map[status] || "badge-status-pending";
+        }
+
+        function priorityClass(priority) {
+            const map = {
+                "Low":      "badge-priority-low",
+                "Medium":   "badge-priority-medium",
+                "High":     "badge-priority-high",
+                "Critical": "badge-priority-critical"
+            };
+            return map[priority] || "badge-priority-medium";
+        }
+
+        // Build assignee checkbox list inside a container div
+        function buildAssigneeCheckboxes(containerId, selectedIds) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = "";
+            if (projectMembers.length === 0) {
+                container.innerHTML = '<span class="text-muted" style="font-size:0.85rem;">No members in this project.</span>';
+                return;
+            }
+            projectMembers.forEach(function(m) {
+                const lbl = document.createElement("label");
+                const cb  = document.createElement("input");
+                cb.type  = "checkbox";
+                cb.value = m.id;
+                cb.name  = "assignee";
+                if (selectedIds && selectedIds.includes(m.id)) {
+                    cb.checked = true;
+                }
+                lbl.appendChild(cb);
+                lbl.appendChild(document.createTextNode(" " + m.full_name + " (" + (m.role || "").replaceAll("_", " ") + ")"));
+                container.appendChild(lbl);
+            });
+        }
+
+        // Get the checked assignee IDs from a checkbox container
+        function getCheckedIds(containerId) {
+            const container = document.getElementById(containerId);
+            const checked   = container.querySelectorAll('input[type="checkbox"]:checked');
+            return Array.from(checked).map(function(cb) { return parseInt(cb.value); });
+        }
+
+        // ── Load profile ──────────────────────────────────────────
+
+        async function checkRoleAndId() {
+            try {
+                const res  = await fetch("/profile");
+                if (!res.ok) return;
+                const user = await res.json();
+                currentUserRole = user.role;
+                currentUserId   = user.id;
+                if (currentUserRole === "project_manager" || currentUserRole === "team_leader") {
+                    document.getElementById("toggleCreateForm").hidden = false;
+                }
+            } catch (e) { /* silently skip */ }
+        }
+
+        // ── Load project members ──────────────────────────────────
+
+        async function loadMembers() {
+            try {
+                const res  = await fetch("/projects/" + projectId);
+                if (!res.ok) return;
+                const data = await res.json();
+                projectMembers = data.members || [];
+                buildAssigneeCheckboxes("createAssigneeList", []);
+                buildAssigneeCheckboxes("editAssigneeList", []);
+            } catch (e) { /* silently skip */ }
+        }
+
+        // ── Load and render tasks ─────────────────────────────────
+
+        // Tracks which tab is currently active — "ongoing" by default
+        let activeTab = "ongoing";
+
+        // Tab switching — only one list visible at a time
+        document.getElementById("tabOngoing").addEventListener("click", function() {
+            activeTab = "ongoing";
+            document.getElementById("tabOngoing").classList.add("active");
+            document.getElementById("tabCompleted").classList.remove("active");
+            document.getElementById("ongoingList").style.display = "block";
+            document.getElementById("completedList").style.display = "none";
+        });
+
+        document.getElementById("tabCompleted").addEventListener("click", function() {
+            activeTab = "completed";
+            document.getElementById("tabCompleted").classList.add("active");
+            document.getElementById("tabOngoing").classList.remove("active");
+            document.getElementById("completedList").style.display = "block";
+            document.getElementById("ongoingList").style.display = "none";
+        });
+
+        async function loadTasks() {
+            const ongoingList   = document.getElementById("ongoingList");
+            const completedList = document.getElementById("completedList");
+            ongoingList.innerHTML   = '<p class="text-muted">Loading...</p>';
+            completedList.innerHTML = '<p class="text-muted">Loading...</p>';
+
+            try {
+                const res  = await fetch("/tasks?project_id=" + projectId);
+                const data = await res.json();
+
+                if (!res.ok) {
+                    ongoingList.innerHTML = "";
+                    showMessage(data.error || "Unable to load tasks.");
+                    return;
+                }
+
+                const ongoing   = data.filter(function(t) { return t.status !== "Completed"; });
+                const completed = data.filter(function(t) { return t.status === "Completed"; });
+
+                // Update tab counts
+                document.getElementById("ongoingCount").textContent  = "(" + ongoing.length + ")";
+                document.getElementById("completedCount").textContent = "(" + completed.length + ")";
+
+                ongoingList.innerHTML = "";
+                if (ongoing.length === 0) {
+                    ongoingList.innerHTML = '<p class="text-muted">No ongoing tasks.</p>';
+                } else {
+                    ongoing.forEach(function(task) { ongoingList.appendChild(buildTaskRow(task)); });
+                }
+
+                completedList.innerHTML = "";
+                if (completed.length === 0) {
+                    completedList.innerHTML = '<p class="text-muted">No completed tasks yet.</p>';
+                } else {
+                    completed.forEach(function(task) { completedList.appendChild(buildTaskRow(task)); });
+                }
+
+            } catch (e) {
+                ongoingList.innerHTML = "";
+                showMessage("Unable to connect to the server.");
+            }
+        }
+
+        function buildTaskRow(task) {
+            const row = document.createElement("div");
+            row.className  = "task-row";
+            row.dataset.id = task.id;
+
+            // Left: title + description + assignees
+            const info = document.createElement("div");
+            info.className = "task-info";
+
+            const titleEl = document.createElement("div");
+            titleEl.className   = "task-title";
+            titleEl.textContent = task.title || "Untitled Task";
+
+            const descPart = task.description
+                ? task.description.slice(0, 60) + (task.description.length > 60 ? "…" : "")
+                : "";
+
+            const metaEl = document.createElement("div");
+            metaEl.className = "task-meta";
+            if (descPart) metaEl.textContent = descPart;
+
+            // Assignee names displayed before priority
+            const assigneeEl = document.createElement("div");
+            assigneeEl.className = "task-assignees";
+            if (task.assignees && task.assignees.length > 0) {
+                const names = task.assignees.map(function(a) { return a.full_name; }).join(", ");
+                assigneeEl.textContent = "Assigned to: " + names;
+            } else {
+                assigneeEl.textContent = "Assigned to: Unassigned";
+                assigneeEl.style.color = "#adb5bd";
+            }
+
+            info.appendChild(titleEl);
+            if (descPart) info.appendChild(metaEl);
+            info.appendChild(assigneeEl);
+
+            // Right: priority badge + status + edit button
+            const right = document.createElement("div");
+            right.className = "task-right";
+
+            const prioBadge = document.createElement("span");
+            prioBadge.className   = "task-badge " + priorityClass(task.priority);
+            prioBadge.textContent = task.priority || "Medium";
+            right.appendChild(prioBadge);
+
+            // Check if current user is an assignee of this task
+            const isAssignee = task.assignees && task.assignees.some(function(a) { return a.id === currentUserId; });
+
+            // All users see a status badge; assignees and PM/TL can also change it
+            if (isAssignee || currentUserRole === "project_manager" || currentUserRole === "team_leader") {
+                const statusSel = document.createElement("select");
+                statusSel.className = "status-select";
+                ["Pending", "In Progress", "Completed", "Blocked"].forEach(function(s) {
+                    const opt = document.createElement("option");
+                    opt.value       = s;
+                    opt.textContent = s;
+                    if (s === task.status) opt.selected = true;
+                    statusSel.appendChild(opt);
+                });
+                statusSel.addEventListener("change", function() {
+                    submitStatusUpdate(task.id, statusSel.value);
+                });
+                right.appendChild(statusSel);
+            } else {
+                const statusBadge = document.createElement("span");
+                statusBadge.className   = "task-badge " + statusClass(task.status);
+                statusBadge.textContent = task.status || "Pending";
+                right.appendChild(statusBadge);
+            }
+
+            // Edit button — shown to PM, TL, and task assignees
+            if (isAssignee || currentUserRole === "project_manager" || currentUserRole === "team_leader") {
+                const editBtn = document.createElement("button");
+                editBtn.type        = "button";
+                editBtn.className   = "btn btn-sm btn-outline-secondary";
+                editBtn.textContent = "Edit";
+                editBtn.addEventListener("click", function() { openEditForm(task); });
+                right.appendChild(editBtn);
+            }
+
+            row.appendChild(info);
+            row.appendChild(right);
+            return row;
+        }
+
+        // ── Status update ─────────────────────────────────────────
+
+        async function submitStatusUpdate(taskId, newStatus) {
+            try {
+                const res    = await fetch("/tasks/" + taskId, {
+                    method:  "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body:    JSON.stringify({ status: newStatus })
+                });
+                const result = await res.json();
+                if (!res.ok) {
+                    showMessage(result.error || "Failed to update status.");
+                    return;
+                }
+                showMessage("Status updated.", "success");
+                await loadTasks();
+            } catch (e) {
+                showMessage("Unable to connect to the server.");
+            }
+        }
+
+        // ── Create task ───────────────────────────────────────────
+
+        document.getElementById("toggleCreateForm").addEventListener("click", function() {
+            const card = document.getElementById("createTaskCard");
+            card.hidden = !card.hidden;
+            document.getElementById("editTaskCard").hidden = true;
+        });
+
+        document.getElementById("cancelCreateBtn").addEventListener("click", function() {
+            document.getElementById("createTaskCard").hidden = true;
+            document.getElementById("createTaskForm").reset();
+            buildAssigneeCheckboxes("createAssigneeList", []);
+        });
+
+        document.getElementById("createTaskForm").addEventListener("submit", async function(e) {
+            e.preventDefault();
+
+            const title       = document.getElementById("taskTitle").value.trim();
+            const desc        = document.getElementById("taskDescription").value.trim();
+            const priority    = document.getElementById("taskPriority").value;
+            const assigneeIds = getCheckedIds("createAssigneeList");
+            const btn         = document.getElementById("createTaskBtn");
+
+            if (!title) { showMessage("Task title is required."); return; }
+
+            btn.disabled = true;
+            try {
+                const res = await fetch("/projects/" + projectId + "/tasks", {
+                    method:  "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body:    JSON.stringify({
+                        title:        title,
+                        description:  desc,
+                        priority:     priority,
+                        assignee_ids: assigneeIds
+                    })
+                });
+                const result = await res.json();
+                if (res.status === 401) { window.location.href = "/login"; return; }
+                if (!res.ok) { showMessage(result.error || "Failed to create task."); return; }
+                showMessage("Task created successfully!", "success");
+                document.getElementById("createTaskForm").reset();
+                buildAssigneeCheckboxes("createAssigneeList", []);
+                document.getElementById("createTaskCard").hidden = true;
+                await loadTasks();
+            } catch (err) {
+                showMessage("Unable to connect to the server.");
+            } finally {
+                btn.disabled = false;
+            }
+        });
+
+        // ── Edit task ─────────────────────────────────────────────
+
+        function openEditForm(task) {
+            document.getElementById("editTaskId").value          = task.id;
+            document.getElementById("editTaskTitle").value       = task.title || "";
+            document.getElementById("editTaskDescription").value = task.description || "";
+            document.getElementById("editTaskPriority").value    = task.priority || "Medium";
+            document.getElementById("editTaskStatus").value      = task.status || "Pending";
+
+            const selectedIds = (task.assignees || []).map(function(a) { return a.id; });
+            buildAssigneeCheckboxes("editAssigneeList", selectedIds);
+
+            document.getElementById("editTaskCard").hidden   = false;
+            document.getElementById("createTaskCard").hidden = true;
+            document.getElementById("editTaskCard").scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+
+        document.getElementById("cancelEditBtn").addEventListener("click", function() {
+            document.getElementById("editTaskCard").hidden = true;
+            document.getElementById("editTaskForm").reset();
+        });
+
+        document.getElementById("editTaskForm").addEventListener("submit", async function(e) {
+            e.preventDefault();
+
+            const taskId      = document.getElementById("editTaskId").value;
+            const title       = document.getElementById("editTaskTitle").value.trim();
+            const desc        = document.getElementById("editTaskDescription").value.trim();
+            const priority    = document.getElementById("editTaskPriority").value;
+            const status      = document.getElementById("editTaskStatus").value;
+            const assigneeIds = getCheckedIds("editAssigneeList");
+            const btn         = document.getElementById("saveEditBtn");
+
+            if (!title) { showMessage("Task title is required."); return; }
+
+            btn.disabled = true;
+            try {
+                const res = await fetch("/tasks/" + taskId, {
+                    method:  "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body:    JSON.stringify({
+                        title:        title,
+                        description:  desc,
+                        priority:     priority,
+                        status:       status,
+                        assignee_ids: assigneeIds
+                    })
+                });
+                const result = await res.json();
+                if (res.status === 401) { window.location.href = "/login"; return; }
+                if (!res.ok) { showMessage(result.error || "Failed to save changes."); return; }
+                showMessage("Task updated successfully!", "success");
+                document.getElementById("editTaskCard").hidden = true;
+                document.getElementById("editTaskForm").reset();
+                await loadTasks();
+            } catch (err) {
+                showMessage("Unable to connect to the server.");
+            } finally {
+                btn.disabled = false;
+            }
+        });
+
+        // ── Init ──────────────────────────────────────────────────
+
+        async function init() {
+            await checkRoleAndId();
+            await loadMembers();
+            await loadTasks();
+        }
+        init();
+
+        // ── Logout + Sidebar ──────────────────────────────────────
+
+        async function doLogout() {
+            const res = await fetch("/logout", { method: "POST" });
+            if (res.ok) {
+                // Redirect to public home page after logout
+                const data = await res.json().catch(function() { return {}; });
+                window.location.href = data.redirect || "/";
+            }
+        }
+        document.getElementById("logoutButton").addEventListener("click", doLogout);
+        document.getElementById("sidebarLogout").addEventListener("click", doLogout);
+
+        const sidebar      = document.getElementById("sidebar");
+        const overlay      = document.getElementById("sidebarOverlay");
+        const hamburgerBtn = document.getElementById("hamburgerBtn");
+        const sidebarClose = document.getElementById("sidebarClose");
+        function openSidebar()  { sidebar.classList.add("open");    overlay.classList.add("open"); }
+        function closeSidebar() { sidebar.classList.remove("open"); overlay.classList.remove("open"); }
+        hamburgerBtn.addEventListener("click", openSidebar);
+        sidebarClose.addEventListener("click", closeSidebar);
+        overlay.addEventListener("click", closeSidebar);
+
+    </script>
+</body>
+</html>

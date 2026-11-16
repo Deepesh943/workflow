@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Members - Smart Workflow</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+    <style>
+        body { background-color: #f5f7fb; margin: 0; padding: 0; }
+
+        /* ── Member row ───────────────────────────────────────────── */
+        .member-row {
+            display: flex;
+            align-items: center;
+            background: #fff;
+            border: 1px solid #e3e8ef;
+            border-radius: 8px;
+            padding: 12px 18px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            gap: 12px;
+        }
+
+        /* Added: small circular member photo on the left */
+        .member-photo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+            border: 1px solid #e3e8ef;
+        }
+
+        .member-name {
+            font-weight: 600;
+            font-size: 1rem;
+            color: #263449;
+            flex: 1;              /* name takes all remaining space */
+            min-width: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .member-role {
+            font-size: 0.85rem;
+            color: #6c757d;
+            background: #f0f4fa;
+            border-radius: 12px;
+            padding: 3px 10px;
+            text-transform: capitalize;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        /* Added: Remove button — light red, only visible to project manager */
+        .member-remove-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(220, 53, 69, 0.08);
+            color: #dc3545;
+            border: 1px solid rgba(220, 53, 69, 0.25);
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            flex-shrink: 0;
+            transition: background 0.18s, border-color 0.18s;
+        }
+        .member-remove-btn:hover {
+            background: rgba(220, 53, 69, 0.18);
+            border-color: rgba(220, 53, 69, 0.5);
+        }
+
+        /* ── Search dropdown ──────────────────────────────────────── */
+        .search-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border: 1px solid #dee2e6;
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            max-height: 240px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        }
+        .search-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 14px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .search-dropdown-item:last-child { border-bottom: none; }
+        .search-dropdown-item:hover { background-color: #f8f9fa; }
+
+        /* Added: small circular photo inside search suggestion */
+        .suggestion-photo {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+            border: 1px solid #e3e8ef;
+        }
+
+        .suggestion-text { flex: 1; min-width: 0; }
+        .suggestion-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #263449;
+        }
+        .suggestion-details {
+            font-size: 0.78rem;
+            color: #6c757d;
+        }
+
+        /* Selected member tags */
+        .selected-member-tag {
+            display: inline-flex;
+            align-items: center;
+            background: #e7f0ff;
+            border: 1px solid #b3cffb;
+            border-radius: 20px;
+            padding: 3px 10px 3px 12px;
+            margin: 3px;
+            font-size: 0.85rem;
+        }
+        .selected-member-tag .remove-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #888;
+            margin-left: 6px;
+            font-size: 1rem;
+            line-height: 1;
+            padding: 0;
+        }
+        .selected-member-tag .remove-btn:hover { color: #dc3545; }
+        #selectedMembersContainer {
+            min-height: 36px;
+            padding: 4px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            background: #fafafa;
+        }
+    </style>
+</head>
+<body class="members-page">
+
+    <!-- Navigation bar — matches dashboard exactly -->
+    <div class="dash-sidebar-overlay" id="sidebarOverlay"></div>
+
+    <nav class="dash-sidebar" id="sidebar">
+        <div class="dash-sidebar-header">
+            <span class="dash-sidebar-title">Smart Workflow</span>
+            <button class="dash-sidebar-close" id="sidebarClose" aria-label="Close menu">&#10005;</button>
+        </div>
+        <ul class="dash-sidebar-nav">
+            <li><a href="/dashboard"><span class="dash-sidebar-icon">&#127968;</span> Home</a></li>
+            <li><a href="/projects-page" class="active"><span class="dash-sidebar-icon">&#128193;</span> Projects</a></li>
+            <li><a href="/about"><span class="dash-sidebar-icon">&#8505;&#65039;</span> About</a></li>
+            <li><a href="/profile-page"><span class="dash-sidebar-icon">&#128100;</span> Profile</a></li>
+            <li><button id="sidebarLogout"><span class="dash-sidebar-icon">&#128275;</span> Logout</button></li>
+        </ul>
+    </nav>
+
+    <header class="dash-navbar">
+        <div class="dash-navbar-left">
+            <button class="dash-hamburger" id="hamburgerBtn" aria-label="Open menu">
+                <span></span><span></span><span></span>
+            </button>
+            <a href="/dashboard" class="dash-brand">Workflow</a>
+        </div>
+        <ul class="dash-nav-links">
+            <li><a href="/dashboard">Home</a></li>
+            <li><a href="/projects-page" class="active">Projects</a></li>
+            <li><a href="/about">About</a></li>
+        </ul>
+        <button class="dash-logout-btn" id="logoutButton">Logout</button>
+    </header>
+
+    <main class="container py-5">
+
+        <h1 class="fw-bold mb-1" style="color:#263449;">Project Members</h1>
+        <p class="text-muted mb-4">View the members working on this project and their roles.</p>
+
+        <!-- Add Member section — shown only to project_manager and team_leader -->
+        <div id="addMemberSection" class="card shadow-sm border-0 mb-4" hidden>
+            <div class="card-body">
+                <h5 class="fw-semibold mb-3">Add Members</h5>
+                <div class="mb-3">
+                    <div class="position-relative">
+                        <input type="text" class="form-control" id="memberSearchInput"
+                            placeholder="Type a name to search people..."
+                            autocomplete="off">
+                        <div id="memberSearchDropdown" class="search-dropdown" hidden></div>
+                    </div>
+                    <div id="selectedMembersContainer" class="mt-2"></div>
+                    <small class="text-muted">Only people from your company are shown.</small>
+                </div>
+                <button type="button" id="addMembersButton" class="btn btn-primary">
+                    Add Members
+                </button>
+                <div id="addMemberMessage" class="mt-2"></div>
+            </div>
+        </div>
+
+        <!-- Members list -->
+        <div id="membersList">
+            <p class="text-muted">Loading project members...</p>
+        </div>
+
+        <!-- Page message (success / error after remove) -->
+        <div id="pageMessage" class="mt-3"></div>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+
+        const urlParts  = window.location.pathname.split("/");
+        const projectId = urlParts[2];
+
+        // Default photo used when a user has no uploaded photo
+        const DEFAULT_PHOTO = "{{ url_for('static', filename='images/no profile.jpg') }}";
+
+        // Tracks whether the logged-in user is the project manager who created this project
+        let currentUserId   = null;
+        let isProjectOwner  = false;   // true only for the PM who created this project
+
+        // ── Helpers ──────────────────────────────────────────────────────────
+
+        function showPageMsg(text, type = "danger") {
+            const el = document.getElementById("pageMessage");
+            el.innerHTML = '<div class="alert alert-' + type + '">' + text + '</div>';
+            if (type === "success") {
+                setTimeout(function () { el.innerHTML = ""; }, 3000);
+            }
+        }
+
+        // Return the correct src for a photo_path that may be null
+        function photoSrc(photo_path) {
+            if (!photo_path) return DEFAULT_PHOTO;
+            return "/static/" + photo_path;
+        }
+
+        // ── Load profile to know if current user is the project owner ─────────
+
+        async function checkUserRole() {
+            try {
+                const res  = await fetch("/profile");
+                if (!res.ok) return;
+                const user = await res.json();
+                currentUserId = user.id;
+
+                // Show Add Members panel for PM and team_leader
+                if (user.role === "project_manager" || user.role === "team_leader") {
+                    document.getElementById("addMemberSection").hidden = false;
+                }
+
+                // Added: check if this PM created this project so we can show Remove
+                if (user.role === "project_manager") {
+                    const projRes  = await fetch("/projects/" + projectId);
+                    if (projRes.ok) {
+                        const projData = await projRes.json();
+                        if (projData.project && projData.project.created_by === user.id) {
+                            isProjectOwner = true;
+                        }
+                    }
+                }
+
+                // Re-render member list now that we know if remove buttons should show
+                await loadMembers();
+
+            } catch (e) { /* silently skip */ }
+        }
+
+        // ── Load and render members ───────────────────────────────────────────
+
+        async function loadMembers() {
+            const membersList = document.getElementById("membersList");
+
+            try {
+                const response = await fetch("/projects/" + projectId);
+                const data     = await response.json();
+
+                if (!response.ok) {
+                    membersList.innerHTML =
+                        '<p class="text-danger">' +
+                        (data.error || "Unable to load project members.") + '</p>';
+                    return;
+                }
+
+                const members = data.members || [];
+                membersList.innerHTML = "";
+
+                if (members.length === 0) {
+                    membersList.innerHTML =
+                        '<p class="text-muted">No members have been added yet.</p>';
+                    return;
+                }
+
+                members.forEach(function (member) {
+                    membersList.appendChild(buildMemberRow(member));
+                });
+
+            } catch (e) {
+                membersList.innerHTML =
+                    '<p class="text-danger">Unable to load project members.</p>';
+            }
+        }
+
+        // Added: build a single member row element with photo, name, role, Remove button
+        function buildMemberRow(member) {
+            const row = document.createElement("div");
+            row.className  = "member-row";
+            row.dataset.id = member.id;
+
+            // Added: circular profile photo
+            const photo = document.createElement("img");
+            photo.className = "member-photo";
+            photo.src       = photoSrc(member.photo_path);
+            photo.alt       = member.full_name || "Member";
+            photo.onerror   = function () { this.src = DEFAULT_PHOTO; };
+
+            const nameSpan = document.createElement("span");
+            nameSpan.className   = "member-name";
+            nameSpan.textContent = member.full_name || "Unknown Member";
+
+            const roleSpan = document.createElement("span");
+            roleSpan.className   = "member-role";
+            roleSpan.textContent = (member.role || "team_member").replaceAll("_", " ");
+
+            row.appendChild(photo);
+            row.appendChild(nameSpan);
+            row.appendChild(roleSpan);
+
+            // Added: Remove button — only visible to the PM who created this project
+            // Cannot remove themselves (backend also enforces this)
+            if (isProjectOwner && member.id !== currentUserId) {
+                const removeBtn = document.createElement("button");
+                removeBtn.className   = "member-remove-btn";
+                removeBtn.type        = "button";
+                removeBtn.innerHTML   = "Remove &#128465;";   // 🗑 trash icon
+                removeBtn.setAttribute("aria-label", "Remove " + (member.full_name || "member"));
+
+                removeBtn.addEventListener("click", async function () {
+                    const confirmed = window.confirm(
+                        "Are you sure you want to remove " +
+                        (member.full_name || "this member") +
+                        " from the project?"
+                    );
+                    if (!confirmed) return;
+
+                    removeBtn.disabled = true;
+                    try {
+                        const res = await fetch(
+                            "/projects/" + projectId + "/members/" + member.id,
+                            { method: "DELETE" }
+                        );
+                        const result = await res.json();
+                        if (!res.ok) {
+                            showPageMsg(result.error || "Failed to remove member.");
+                            removeBtn.disabled = false;
+                            return;
+                        }
+                        // Remove the row from the DOM immediately
+                        row.remove();
+                        showPageMsg(
+                            (member.full_name || "Member") + " removed successfully.",
+                            "success"
+                        );
+                    } catch (e) {
+                        showPageMsg("Unable to connect to the server.");
+                        removeBtn.disabled = false;
+                    }
+                });
+
+                row.appendChild(removeBtn);
+            }
+
+            return row;
+        }
+
+        // ── Member search + Add Members ───────────────────────────────────────
+
+        const selectedMembers          = [];
+        let searchTimer                = null;
+        const memberSearchInput        = document.getElementById("memberSearchInput");
+        const memberSearchDropdown     = document.getElementById("memberSearchDropdown");
+        const selectedMembersContainer = document.getElementById("selectedMembersContainer");
+
+        memberSearchInput.addEventListener("input", function () {
+            clearTimeout(searchTimer);
+            const text = memberSearchInput.value.trim();
+            if (text.length === 0) { memberSearchDropdown.hidden = true; return; }
+            searchTimer = setTimeout(function () { fetchSuggestions(text); }, 300);
+        });
+
+        document.addEventListener("click", function (e) {
+            if (!memberSearchInput.contains(e.target) &&
+                !memberSearchDropdown.contains(e.target)) {
+                memberSearchDropdown.hidden = true;
+            }
+        });
+
+        async function fetchSuggestions(text) {
+            try {
+                const response = await fetch(
+                    "/profile/search?search_text=" + encodeURIComponent(text)
+                );
+                if (!response.ok) { memberSearchDropdown.hidden = true; return; }
+                const users = await response.json();
+                renderDropdown(users, text);
+            } catch (e) {
+                memberSearchDropdown.hidden = true;
+            }
+        }
+
+        function highlightMatch(name, search) {
+            if (!search) return name;
+            const idx = name.toLowerCase().indexOf(search.toLowerCase());
+            if (idx === -1) return name;
+            return (
+                name.slice(0, idx) +
+                "<mark class='p-0'>" + name.slice(idx, idx + search.length) + "</mark>" +
+                name.slice(idx + search.length)
+            );
+        }
+
+        // Added: each suggestion now shows photo + name + details
+        function renderDropdown(users, searchText) {
+            memberSearchDropdown.innerHTML = "";
+
+            const filtered = users.filter(function (u) {
+                return !selectedMembers.some(function (s) { return s.id === u.id; });
+            });
+
+            if (filtered.length === 0) {
+                const noResult = document.createElement("div");
+                noResult.className   = "search-dropdown-item text-muted";
+                noResult.textContent = "No matching people found.";
+                memberSearchDropdown.appendChild(noResult);
+                memberSearchDropdown.hidden = false;
+                return;
+            }
+
+            filtered.forEach(function (user) {
+                const item = document.createElement("div");
+                item.className = "search-dropdown-item";
+
+                // Added: circular photo in suggestion
+                const photo = document.createElement("img");
+                photo.className = "suggestion-photo";
+                photo.src       = photoSrc(user.photo_path);
+                photo.alt       = user.full_name || "";
+                photo.onerror   = function () { this.src = DEFAULT_PHOTO; };
+
+                const textDiv = document.createElement("div");
+                textDiv.className = "suggestion-text";
+
+                const nameLine = document.createElement("div");
+                nameLine.className = "suggestion-name";
+                nameLine.innerHTML = highlightMatch(user.full_name || "", searchText);
+
+                const detailLine = document.createElement("div");
+                detailLine.className   = "suggestion-details";
+                detailLine.textContent =
+                    (user.role || "").replaceAll("_", " ") +
+                    " | " + (user.company_name || "") +
+                    " | " + (user.branch || "");
+
+                textDiv.appendChild(nameLine);
+                textDiv.appendChild(detailLine);
+                item.appendChild(photo);
+                item.appendChild(textDiv);
+
+                item.addEventListener("click", function () {
+                    addSelectedMember(user);
+                    memberSearchInput.value    = "";
+                    memberSearchDropdown.hidden = true;
+                });
+
+                memberSearchDropdown.appendChild(item);
+            });
+
+            memberSearchDropdown.hidden = false;
+        }
+
+        function addSelectedMember(user) {
+            if (selectedMembers.some(function (s) { return s.id === user.id; })) return;
+            selectedMembers.push({ id: user.id, full_name: user.full_name });
+            renderSelectedTags();
+        }
+
+        function renderSelectedTags() {
+            selectedMembersContainer.innerHTML = "";
+            selectedMembers.forEach(function (member) {
+                const tag = document.createElement("span");
+                tag.className   = "selected-member-tag";
+                tag.textContent = member.full_name;
+
+                const removeBtn = document.createElement("button");
+                removeBtn.className = "remove-btn";
+                removeBtn.textContent = "×";
+                removeBtn.type        = "button";
+                removeBtn.setAttribute("aria-label", "Remove " + member.full_name);
+                removeBtn.addEventListener("click", function () {
+                    const idx = selectedMembers.findIndex(function (s) {
+                        return s.id === member.id;
+                    });
+                    if (idx !== -1) selectedMembers.splice(idx, 1);
+                    renderSelectedTags();
+                });
+
+                tag.appendChild(removeBtn);
+                selectedMembersContainer.appendChild(tag);
+            });
+        }
+
+        document.getElementById("addMembersButton").addEventListener("click", async function () {
+            const addMemberMessage = document.getElementById("addMemberMessage");
+            addMemberMessage.textContent = "";
+
+            if (selectedMembers.length === 0) {
+                addMemberMessage.innerHTML =
+                    '<span class="text-warning">Please select at least one person.</span>';
+                return;
+            }
+
+            const button = this;
+            button.disabled = true;
+            let errors = [];
+            let added  = 0;
+
+            for (const member of selectedMembers) {
+                try {
+                    const response = await fetch(
+                        "/projects/" + projectId + "/members",
+                        {
+                            method:  "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body:    JSON.stringify({ user_id: member.id })
+                        }
+                    );
+                    const result = await response.json();
+                    if (response.ok) {
+                        added++;
+                    } else {
+                        errors.push(member.full_name + ": " + (result.error || "Failed"));
+                    }
+                } catch (e) {
+                    errors.push(member.full_name + ": Network error");
+                }
+            }
+
+            selectedMembers.length = 0;
+            renderSelectedTags();
+            button.disabled = false;
+
+            if (errors.length > 0) {
+                addMemberMessage.innerHTML =
+                    '<span class="text-danger">' + errors.join("<br>") + '</span>';
+            }
+            if (added > 0) {
+                addMemberMessage.innerHTML +=
+                    '<span class="text-success">' + added + ' member(s) added.</span>';
+                await loadMembers();
+            }
+        });
+
+        // ── Logout ────────────────────────────────────────────────────────────
+        async function doLogout() {
+            const res = await fetch("/logout", { method: "POST" });
+            if (res.ok) window.location.href = "/";
+        }
+        document.getElementById("logoutButton").addEventListener("click", doLogout);
+        document.getElementById("sidebarLogout").addEventListener("click", doLogout);
+
+        // ── Sidebar JS — matches dashboard exactly ────────────────────────────
+        const sidebar      = document.getElementById("sidebar");
+        const overlay      = document.getElementById("sidebarOverlay");
+        const hamburgerBtn = document.getElementById("hamburgerBtn");
+        const sidebarClose = document.getElementById("sidebarClose");
+        function openSidebar()  { sidebar.classList.add("open");    overlay.classList.add("open"); }
+        function closeSidebar() { sidebar.classList.remove("open"); overlay.classList.remove("open"); }
+        hamburgerBtn.addEventListener("click", openSidebar);
+        sidebarClose.addEventListener("click", closeSidebar);
+        overlay.addEventListener("click", closeSidebar);
+
+        // ── Init — check role first, then load members ────────────────────────
+        checkUserRole();
+
+    </script>
+</body>
+</html>

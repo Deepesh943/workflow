@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Smart Workflow</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+</head>
+<body class="dash-page"
+    style='background-image: url("{{ url_for("static", filename="images/back_ground.jpg") }}");'>
+
+    <!-- Added: transparent black overlay over background image to improve text readability -->
+    <div class="background-overlay"></div>
+    <div class="dash-sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ── Sidebar ── -->
+    <nav class="dash-sidebar" id="sidebar" style="color:#5852B8;">
+        <div class="dash-sidebar-header">
+            <span class="dash-sidebar-title">Smart Workflow</span>
+            <button class="dash-sidebar-close" id="sidebarClose" aria-label="Close menu">&#10005;</button>
+        </div>
+        <ul class="dash-sidebar-nav">
+            <li>
+                <a href="/dashboard" class="active">
+                    <span class="dash-sidebar-icon">&#127968;</span> Home
+                </a>
+            </li>
+            <li>
+                <a href="/projects-page">
+                    <span class="dash-sidebar-icon">&#128193;</span> Projects
+                </a>
+            </li>
+            <li>
+                <a href="/about">
+                    <span class="dash-sidebar-icon">&#8505;&#65039;</span> About
+                </a>
+            </li>
+            <li>
+                <a href="/profile-page">
+                    <span class="dash-sidebar-icon">&#128100;</span> Profile
+                </a>
+            </li>
+            <li>
+                <button id="sidebarLogout">
+                    <span class="dash-sidebar-icon">&#128275;</span> Logout
+                </button>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- ── Top navbar ── -->
+    <header class="dash-navbar" style="color: #5852B8;">
+        <div class="dash-navbar-left">
+            <!-- Hamburger button opens sidebar -->
+            <button class="dash-hamburger" id="hamburgerBtn" aria-label="Open menu">
+                <span></span><span></span><span></span>
+            </button>
+            <a href="/dashboard" class="dash-brand">Workflow</a>
+        </div>
+
+        <!-- Center navigation links -->
+        <ul class="dash-nav-links">
+            <li><a href="/dashboard" class="active">Home</a></li>
+            <li><a href="/projects-page">Projects</a></li>
+            <li><a href="/about">About</a></li>
+        </ul>
+
+        <!-- Right: Logout only (no Profile button in top navbar) -->
+        <button class="dash-logout-btn" id="logoutButton">Logout</button>
+    </header>
+
+    <!-- ── Hero: greeting + caption ── -->
+    <section class="dash-hero">
+        <!-- Personalized greeting, populated by JS -->
+        <h1 class="dash-greeting" id="greetingMsg">Hello!</h1>
+
+        <!-- Three-line caption, left-aligned -->
+        <div class="dash-caption">
+            <span class="dash-caption-quote">
+                "Manage<br>
+                your projects, tasks and<br>
+                colleagues"
+            </span>
+        </div>
+    </section>
+
+    <!-- ── Your Projects section ── -->
+    <section class="dash-projects-section">
+        <h2 class="dash-projects-heading">Your Projects</h2>
+
+        <div class="dash-projects-grid" id="dashProjectsGrid">
+            <!-- Slots filled by JavaScript -->
+            <div class="dash-empty-card">Loading...</div>
+            <div class="dash-empty-card"></div>
+            <!-- Third column: arrow + More Projects -->
+            <div class="dash-arrow-col">
+                
+                <a href="/projects-page" class="dash-more-btn">
+                    More Projects &#8594;
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // ── Sidebar ───────────────────────────────────────────────
+        const sidebar         = document.getElementById("sidebar");
+        const overlay         = document.getElementById("sidebarOverlay");
+        const hamburgerBtn    = document.getElementById("hamburgerBtn");
+        const sidebarClose    = document.getElementById("sidebarClose");
+
+        function openSidebar() {
+            sidebar.classList.add("open");
+            overlay.classList.add("open");
+        }
+        function closeSidebar() {
+            sidebar.classList.remove("open");
+            overlay.classList.remove("open");
+        }
+
+        hamburgerBtn.addEventListener("click", openSidebar);
+        sidebarClose.addEventListener("click", closeSidebar);
+        overlay.addEventListener("click", closeSidebar);
+
+        // ── Logout ────────────────────────────────────────────────
+        async function doLogout() {
+            try {
+                const res = await fetch("/logout", { method: "POST" });
+                if (res.ok) { window.location.href = "/"; }
+            } catch (e) { alert("Logout failed. Please try again."); }
+        }
+        document.getElementById("logoutButton").addEventListener("click", doLogout);
+        document.getElementById("sidebarLogout").addEventListener("click", doLogout);
+
+        // ── Load user name for greeting ───────────────────────────
+        async function loadGreeting() {
+            try {
+                const res = await fetch("/profile");
+                if (res.status === 401) { window.location.href = "/login"; return; }
+                if (!res.ok) return;
+                const data = await res.json();
+                document.getElementById("greetingMsg").textContent =
+                    "Hello, " + (data.full_name || "there") + "!";
+            } catch (e) { /* silently skip — greeting stays as "Hello!" */ }
+        }
+
+        // ── Load latest two projects ──────────────────────────────
+        async function loadDashboardProjects() {
+            const grid = document.getElementById("dashProjectsGrid");
+            try {
+                const res = await fetch("/projects");
+                if (res.status === 401) { window.location.href = "/login"; return; }
+                if (!res.ok) {
+                    // Replace loading placeholders with error message
+                    renderProjectSlots(null, null);
+                    return;
+                }
+                const projects = await res.json();
+                // Projects are sorted newest-first by the existing backend query
+                const first  = projects[0] || null;
+                const second = projects[1] || null;
+                renderProjectSlots(first, second);
+            } catch (e) {
+                renderProjectSlots(null, null);
+            }
+        }
+
+        function buildProjectCard(project) {
+            const card = document.createElement("div");
+            card.className = "dash-project-card";
+
+            const icon = document.createElement("div");
+            icon.className   = "dash-card-icon";
+            icon.textContent = "&#128193;";
+            icon.innerHTML   = "&#128193;";
+
+            const title = document.createElement("h3");
+            title.className   = "dash-card-title";
+            title.textContent = project.project_name || "Untitled Project";
+
+            const desc = document.createElement("p");
+            desc.className   = "dash-card-desc";
+            desc.textContent = project.description || "No description provided.";
+
+            const btn = document.createElement("a");
+            btn.className   = "dash-open-btn";
+            btn.textContent = "Open Project";
+            btn.href        = "/project/" + project.id;
+
+            card.appendChild(icon);
+            card.appendChild(title);
+            card.appendChild(desc);
+            card.appendChild(btn);
+            return card;
+        }
+
+        function buildEmptyCard(text) {
+            const card = document.createElement("div");
+            card.className   = "dash-empty-card";
+            card.textContent = text;
+            return card;
+        }
+
+        function renderProjectSlots(first, second) {
+            const grid = document.getElementById("dashProjectsGrid");
+
+            // Keep the third column (arrow + More Projects) — it's the last child
+            const thirdCol = grid.lastElementChild;
+
+            // Remove all children except the last (third column)
+            while (grid.children.length > 1) {
+                grid.removeChild(grid.firstElementChild);
+            }
+
+            // Build slot 1
+            let slot1;
+            if (first) {
+                slot1 = buildProjectCard(first);
+            } else {
+                slot1 = buildEmptyCard("No projects yet. Visit the Projects page to get started.");
+            }
+
+            // Build slot 2
+            let slot2;
+            if (second) {
+                slot2 = buildProjectCard(second);
+            } else if (first) {
+                // One project exists but no second
+                slot2 = buildEmptyCard("Only one project available.");
+            } else {
+                slot2 = buildEmptyCard("");
+            }
+
+            // Insert before the third column
+            grid.insertBefore(slot2, thirdCol);
+            grid.insertBefore(slot1, slot2);
+        }
+
+        // ── Init ──────────────────────────────────────────────────
+        loadGreeting();
+        loadDashboardProjects();
+    </script>
+</body>
+</html>

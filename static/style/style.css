@@ -1,0 +1,1137 @@
+
+/* Common project section card styles */
+.project-section {
+    border: none;
+    border-radius: 12px;
+    opacity: 0.85;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    color: white;
+    min-height: 230px;
+}
+
+/* Project Members section */
+.members-section {
+    background-color: #355c7d;
+}
+
+/* Tasks section */
+.tasks-section {
+    background-color: #6c5b7b;
+}
+
+/* Hover effect for both cards */
+.project-section:hover {
+    opacity: 1;
+    transform: translateY(-4px);
+}
+
+/* Card headings */
+.project-section .card-title {
+    color: white;
+    font-weight: 600;
+}
+
+/* Card descriptions */
+.project-section .card-text {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+/* Simple anchor links at the bottom-left */
+.section-link {
+    display: inline-block;
+    color: #f0d9a8;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+/* Change link text to white on hover */
+.section-link:hover {
+    color: white;
+    text-decoration: underline;
+}
+
+.dashboard-navbar.navbar-brand {
+    position: absolute; /* Replace with your dashboard navbar color */
+    padding: 15px 0;
+}
+
+/* ── Task status badge colours ──────────────────────────────── */
+/* Added: reusable classes for status badges on the tasks page  */
+.badge-status-pending     { background-color: #ffc107; color: #212529; }
+.badge-status-inprogress  { background-color: #fd7e14; color: #fff;    }
+.badge-status-completed   { background-color: #28a745; color: #fff;    }
+.badge-status-blocked     { background-color: #dc3545; color: #fff;    }
+
+/* ── Task priority badge colours ─────────────────────────────── */
+.badge-priority-low      { background-color: #28a745; color: #fff;    }
+.badge-priority-medium   { background-color: #ffc107; color: #212529; }
+.badge-priority-high     { background-color: #fd7e14; color: #fff;    }
+.badge-priority-critical { background-color: #dc3545; color: #fff;    }
+
+/* ── Authentication pages (login.html, register.html) ────────────────────────
+   Scoped to .auth-page so these rules never affect dashboard or project pages.
+   Matches the existing theme: #f5f7fb background, #1a1a2e navbar,
+   #263449 headings, white cards with subtle border and shadow.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* Full-page background — same as dashboard/tasks/members pages */
+.auth-page {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background-color: #f5f7fb;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                 "Helvetica Neue", Arial, sans-serif;
+    color: #333;
+}
+
+/* ── Header bar — mirrors the existing bg-dark navbar ── */
+.auth-header {
+    background-color: #212529;  /* same as Bootstrap bg-dark used everywhere */
+    padding: 0 24px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+}
+
+.auth-header-brand {
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-decoration: none;
+    letter-spacing: 0.01em;
+}
+
+.auth-header-brand:hover {
+    color: #e9ecef;
+    text-decoration: none;
+}
+
+/* ── Centered page wrapper ── */
+.auth-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 48px 16px 64px;
+    min-height: calc(100vh - 56px);
+}
+
+/* ── Card — matches the white cards on dashboard and tasks pages ── */
+.auth-card {
+    background: #fff;
+    border: 1px solid #e3e8ef;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
+    padding: 36px 40px;
+    width: 100%;
+    max-width: 440px;
+}
+
+/* Wider card for the registration page (more fields) */
+.auth-card-wide {
+    max-width: 520px;
+}
+
+/* ── Card headings ── */
+.auth-card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #263449;   /* same heading colour used on tasks / members pages */
+    margin: 0 0 4px;
+}
+
+.auth-card-subtitle {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin: 0 0 28px;
+}
+
+/* ── Form fields ── */
+.auth-form-group {
+    margin-bottom: 18px;
+}
+
+.auth-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #263449;
+    margin-bottom: 6px;
+}
+
+.auth-input,
+.auth-select {
+    display: block;
+    width: 100%;
+    padding: 9px 12px;
+    font-size: 0.95rem;
+    color: #333;
+    background-color: #fff;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+}
+
+.auth-input:focus,
+.auth-select:focus {
+    border-color: #355c7d;   /* matches the members-section blue used in project cards */
+    box-shadow: 0 0 0 3px rgba(53, 92, 125, 0.15);
+}
+
+/* ── Password hint text ── */
+.auth-hint {
+    font-size: 0.78rem;
+    color: #6c757d;
+    margin: 6px 0 0;
+    line-height: 1.6;
+}
+
+/* Two-column row for shorter fields (company + branch) */
+.auth-row {
+    display: flex;
+    gap: 14px;
+}
+
+.auth-row .auth-form-group {
+    flex: 1;
+    min-width: 0;
+}
+
+/* ── Submit button — same dark style as existing navbar buttons ── */
+.auth-button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    background-color: #263449;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background-color 0.2s;
+}
+
+.auth-button:hover  { background-color: #1d2a38; }
+.auth-button:active { background-color: #16212d; }
+.auth-button:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+/* ── Message paragraph (success / error) ── */
+.auth-message {
+    margin-top: 14px;
+    font-size: 0.875rem;
+    min-height: 20px;
+    text-align: center;
+}
+
+.auth-message.error   { color: #dc3545; }
+.auth-message.success { color: #28a745; }
+
+/* ── Bottom link (Register here / Login here) ── */
+.auth-footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.auth-footer a {
+    color: #355c7d;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
+}
+
+/* ── Responsive: stack the two-column row on small screens ── */
+@media (max-width: 480px) {
+    .auth-card       { padding: 28px 20px; }
+    .auth-row        { flex-direction: column; gap: 0; }
+}
+
+/* ── Profile page styles ─────────────────────────────────────────────────────
+   Scoped so they don't affect other pages.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* Page background — consistent with tasks/members pages */
+/* Fixed: added margin:0; padding:0; to remove the browser default body margin that caused white space around the navbar */
+.profile-page { background-color: #f5f7fb; min-height: 100vh; margin: 0; padding: 0; }
+
+/* ── Circular profile photo ── */
+.profile-photo-wrapper {
+    position: relative;
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+.profile-photo-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 50%;
+}
+/* Dark overlay + camera icon shown on hover */
+.profile-photo-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+.profile-photo-wrapper:hover .profile-photo-overlay { opacity: 1; }
+.profile-photo-overlay .camera-icon {
+    color: #fff;
+    font-size: 1.5rem;
+    line-height: 1;
+    pointer-events: none;
+}
+
+/* ── Profile header area (photo + name/role) ── */
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 28px 0 24px;
+}
+.profile-header-info .profile-name {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #263449;
+    margin: 0 0 4px;
+}
+.profile-header-info .profile-role {
+    font-size: 0.85rem;
+    color: #6c757d;
+    text-transform: capitalize;
+}
+
+/* ── Info section card ── */
+.profile-section {
+    background: #fff;
+    border: 1px solid #e3e8ef;
+    border-radius: 10px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+/* Heading row: label left, Edit button right — separator is a full-width <hr> below */
+.profile-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px 0;
+}
+.profile-section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #263449;
+    margin: 0;
+}
+.profile-edit-btn {
+    background: none;
+    border: none;
+    color: #355c7d;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: none;
+}
+.profile-edit-btn:hover { text-decoration: underline; }
+
+/* Full-width separator below the heading row */
+.profile-section-divider {
+    border: none;
+    border-top: 1px solid #e3e8ef;
+    margin: 12px 0 0;
+}
+
+/* Field rows */
+.profile-fields { padding: 4px 24px 20px; }
+.profile-field-row {
+    display: flex;
+    align-items: flex-start;
+    padding: 10px 0;
+    border-bottom: 1px solid #f3f4f6;
+}
+.profile-field-row:last-child { border-bottom: none; }
+.profile-field-label {
+    width: 180px;
+    flex-shrink: 0;
+    font-size: 0.85rem;
+    color: #6c757d;
+    padding-top: 1px;
+}
+.profile-field-value {
+    flex: 1;
+    font-size: 0.9rem;
+    color: #263449;
+    font-weight: 500;
+    word-break: break-word;
+}
+.profile-field-na { color: #adb5bd; font-weight: 400; }
+
+/* ── Edit form inside a section ── */
+.profile-edit-form { padding: 16px 24px 20px; }
+.profile-edit-form .pf-group { margin-bottom: 14px; }
+.profile-edit-form .pf-label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #263449;
+    margin-bottom: 5px;
+}
+.profile-edit-form .pf-input,
+.profile-edit-form .pf-select {
+    display: block;
+    width: 100%;
+    padding: 8px 11px;
+    font-size: 0.9rem;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    box-sizing: border-box;
+    outline: none;
+    color: #333;
+    background: #fff;
+    transition: border-color 0.2s;
+}
+.profile-edit-form .pf-input:focus,
+.profile-edit-form .pf-select:focus {
+    border-color: #355c7d;
+    box-shadow: 0 0 0 3px rgba(53,92,125,0.12);
+}
+.pf-actions { display: flex; gap: 10px; margin-top: 6px; }
+.pf-save-btn {
+    padding: 8px 20px;
+    background: #263449;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.pf-save-btn:hover    { background: #1d2a38; }
+.pf-save-btn:disabled { background: #6c757d; cursor: not-allowed; }
+.pf-cancel-btn {
+    padding: 8px 16px;
+    background: #e9ecef;
+    color: #495057;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.pf-cancel-btn:hover { background: #dee2e6; }
+
+/* Inline message inside a section */
+.profile-section-msg {
+    font-size: 0.82rem;
+    margin-top: 8px;
+    min-height: 16px;
+}
+.profile-section-msg.error   { color: #dc3545; }
+.profile-section-msg.success { color: #28a745; }
+
+/* ── Responsive ── */
+@media (max-width: 540px) {
+    .profile-header          { flex-direction: column; align-items: flex-start; }
+    .profile-field-label     { width: 130px; }
+    .profile-section-header  { padding: 14px 16px 0; }
+    .profile-fields          { padding: 4px 16px 16px; }
+    .profile-edit-form       { padding: 14px 16px 16px; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Dashboard & Projects page styles
+   Added for the redesigned Home dashboard and Projects page.
+   Scoped to .dash-page and .projects-page so existing pages are unaffected.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Full-screen fixed background ── */
+.dash-page,
+.projects-page {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    /* background set inline via style attribute using url_for */
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                 "Helvetica Neue", Arial, sans-serif;
+}
+
+/* iOS Safari doesn't support fixed attachment properly — use scroll as fallback */
+@supports (-webkit-overflow-scrolling: touch) {
+    .dash-page,
+    .projects-page {
+        background-attachment: scroll;
+    }
+}
+
+/* ── Navbar ── */
+.dash-navbar {
+    background: rgba(15, 23, 42, 0.88);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    padding: 0 24px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.dash-navbar-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.dash-brand {
+    color: #fff;
+    font-size: 1.15rem;
+    font-weight: 700;
+    text-decoration: none;
+    letter-spacing: 0.01em;
+}
+.dash-brand:hover { color: #e2e8f0; text-decoration: none; }
+
+/* Hamburger button */
+.dash-hamburger {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 4px;
+}
+.dash-hamburger span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: #fff;
+    border-radius: 2px;
+    transition: background 0.2s;
+}
+.dash-hamburger:hover span { background: #93c5fd; }
+
+/* Center nav links */
+.dash-nav-links {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.dash-nav-links a {
+    color: rgba(255,255,255,0.85);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+.dash-nav-links a:hover,
+.dash-nav-links a.active { color: #fff; }
+
+/* Logout button in navbar */
+.dash-logout-btn {
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 6px;
+    padding: 6px 16px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+}
+.dash-logout-btn:hover {
+    background: rgba(255,255,255,0.18);
+    border-color: rgba(255,255,255,0.45);
+}
+
+/* Hide center links on small screens */
+@media (max-width: 768px) {
+    .dash-nav-links { display: none; }
+}
+
+/* ── Sidebar overlay ── */
+.dash-sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 300;
+}
+.dash-sidebar-overlay.open { display: block; }
+
+/* Sidebar panel */
+.dash-sidebar {
+    position: fixed;
+    top: 0;
+    left: -300px;
+    width: 280px;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.97);
+    z-index: 400;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    transition: left 0.28s ease;
+    box-shadow: 4px 0 20px rgba(0,0,0,0.3);
+    /* Fixed: clip children so hover backgrounds never overflow the sidebar edges */
+    overflow: hidden;
+}
+.dash-sidebar.open { left: 0; }
+
+.dash-sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.dash-sidebar-title {
+    color: #fff;
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+.dash-sidebar-close {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.7);
+    font-size: 1.4rem;
+    cursor: pointer;
+    line-height: 1;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: color 0.2s, background 0.2s;
+}
+.dash-sidebar-close:hover { color: #fff; background: rgba(255,255,255,0.1); }
+
+.dash-sidebar-nav {
+    list-style: none;
+    margin: 0;
+    padding: 16px 0;
+    flex: 1;
+    /* Fixed: allow vertical scroll on small screens while overflow:hidden on sidebar clips horizontal */
+    overflow-y: auto;
+}
+.dash-sidebar-nav li a,
+.dash-sidebar-nav li button {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 13px 20px;
+    color: rgba(255,255,255,0.8);
+    text-decoration: none;
+    font-size: 0.925rem;
+    font-weight: 500;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.18s, color 0.18s;
+    /* Fixed: ensure width:100% and padding are measured within the sidebar width */
+    box-sizing: border-box;
+}
+.dash-sidebar-nav li a:hover,
+.dash-sidebar-nav li button:hover {
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+}
+.dash-sidebar-nav li a.active {
+    background: rgba(99,179,237,0.15);
+    color: #93c5fd;
+    border-left: 3px solid #93c5fd;
+    padding-left: 17px;
+}
+.dash-sidebar-icon { font-size: 1.1rem; width: 20px; text-align: center; }
+
+/* ── Hero section ── */
+.dash-hero {
+    padding: 60px 32px 40px;
+    min-height: 220px;
+    /* Ensure hero content sits above the fixed dark overlay (z-index:0) */
+    position: relative;
+    z-index: 1;
+}
+
+.dash-greeting {
+    /* Updated: matches caption style — no background box, same white bold text with shadow */
+    text-align: center;
+    color: #fff;
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin-bottom: 24px;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    background: none;
+    display: block;
+}
+
+.dash-caption {
+    max-width: 480px;
+    margin-left: 40px;
+    color: #fff;
+    font-size: 1.9rem;
+    font-weight: 800;
+    line-height: 1.35;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+.dash-caption-quote {
+    font-style: italic;
+    opacity: 0.92;
+}
+
+@media (max-width: 600px) {
+    .dash-caption { font-size: 1.3rem; margin-left: 20px; }
+    .dash-greeting { font-size: 1.5rem; }
+}
+
+/* ── Your Projects section ── */
+.dash-projects-section {
+    background: rgba(255,255,255,0.93);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border-radius: 18px;
+    padding: 28px 28px 24px;
+    margin: 0 24px 48px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    /* Sit above the fixed dark overlay */
+    position: relative;
+    z-index: 1;
+}
+
+.dash-projects-heading {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #263449;
+    margin: 0 0 20px;
+}
+
+/* Three-column layout: card | card | arrow */
+.dash-projects-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 18px;
+    align-items: start;
+}
+
+@media (max-width: 700px) {
+    .dash-projects-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Individual project card inside the section */
+.dash-project-card {
+    background: #f0f4ff;
+    border: 1px solid #dbe4ff;
+    border-radius: 12px;
+    padding: 18px 18px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    min-height: 160px;
+}
+.dash-project-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+}
+
+.dash-card-icon {
+    font-size: 1.5rem;
+    margin-bottom: 2px;
+}
+.dash-card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #263449;
+    margin: 0;
+}
+.dash-card-desc {
+    font-size: 0.82rem;
+    color: #6c757d;
+    flex: 1;
+    margin: 0;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.dash-open-btn {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 6px 14px;
+    background: #263449;
+    color: #fff;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+    align-self: flex-start;
+    transition: background 0.2s;
+}
+.dash-open-btn:hover { background: #1d2a38; color: #fff; text-decoration: none; }
+
+/* Empty state card */
+.dash-empty-card {
+    background: #f8faff;
+    border: 1px dashed #c8d4f0;
+    border-radius: 12px;
+    padding: 18px;
+    min-height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9aabb8;
+    font-size: 0.85rem;
+    text-align: center;
+}
+
+/* Third column: circular arrow + More Projects button */
+.dash-arrow-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding-top: 10px;
+}
+
+.dash-arrow-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #355c7d, #6c5b7b);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    text-decoration: none;
+    transition: transform 0.22s, box-shadow 0.22s;
+    box-shadow: 0 4px 14px rgba(53,92,125,0.35);
+    color: #fff;
+    font-size: 1.8rem;
+}
+.dash-arrow-circle:hover {
+    transform: scale(1.07) translateX(3px);
+    box-shadow: 0 6px 20px rgba(53,92,125,0.5);
+    color: #fff;
+}
+
+.dash-arrow-col {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    min-height: 100px;
+}
+
+.dash-more-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 100px;
+    background: #fff;
+    color: #355c7d;
+    border: 1.5px solid #355c7d;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+    white-space: nowrap;
+}
+.dash-more-btn:hover {
+    background: #355c7d;
+    color: #fff;
+    text-decoration: none;
+}
+
+/* ── Projects page ── */
+.projects-page-main {
+    padding: 40px 24px 60px;
+}
+.projects-page-heading {
+    color: #fff;
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 24px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+
+/* White container for the full project list */
+.projects-container {
+    background: rgba(255,255,255,0.93);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border-radius: 18px;
+    padding: 28px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+}
+
+.projects-container-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.projects-container-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #263449;
+    margin: 0;
+}
+
+/* Create Project button (PM only) */
+.create-project-btn {
+    padding: 8px 20px;
+    background: #263449;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.create-project-btn:hover { background: #1d2a38; }
+
+/* Grid for project cards on projects page */
+.projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 18px;
+}
+
+/* Project card on the projects page — reuses dash-project-card style */
+.proj-card {
+    background: #f0f4ff;
+    border: 1px solid #dbe4ff;
+    border-radius: 12px;
+    padding: 18px 18px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.proj-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+}
+.proj-card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #263449;
+    margin: 0;
+}
+.proj-card-desc {
+    font-size: 0.82rem;
+    color: #6c757d;
+    flex: 1;
+    margin: 0;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Create-project form card — same style as existing dashboard form */
+.create-form-card {
+    background: #fff;
+    border: 1px solid #e3e8ef;
+    border-radius: 12px;
+    padding: 20px 22px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+/* Search dropdown inside create-form — reuses existing search-dropdown */
+.proj-search-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-top: none;
+    border-radius: 0 0 6px 6px;
+    max-height: 220px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+.proj-search-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 0.88rem;
+}
+.proj-search-dropdown-item:last-child { border-bottom: none; }
+.proj-search-dropdown-item:hover { background: #f8f9fa; }
+
+/* Global page message */
+.projects-msg {
+    padding: 10px 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 0.875rem;
+    display: none;
+}
+.projects-msg.success { background: #d1fae5; color: #065f46; display: block; }
+.projects-msg.error   { background: #fee2e2; color: #991b1b; display: block; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Login / Register two-column layout additions
+   ─────────────────────────────────────────────────────────────────────────
+   The layout CSS is inline in login.html and register.html to keep them
+   self-contained. The existing auth-* classes (auth-input, auth-label, etc.)
+   are reused unchanged so form fields look the same as before.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Projects page — clean (no background image) variant
+   Added: replaces .projects-page for the Projects page so the background
+   image is not shown there.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.projects-page-clean {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background-color: #eef1f7;   /* light neutral, matches Smart Workflow theme */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                 "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Main area padding — same spacing as .projects-page-main */
+.projects-page-main-clean {
+    padding: 40px 24px 60px;
+}
+
+/* Heading — dark colour instead of white (no background image behind it) */
+.projects-page-heading-clean {
+    color: #263449;
+    font-size: 1.9rem;
+    font-weight: 800;
+    margin-bottom: 24px;
+}
+
+/* ── Projects grid: exactly 3 columns on desktop ── */
+/* Overrides the auto-fill grid set in .projects-grid */
+.projects-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);   /* 3 cards per row on desktop */
+    gap: 18px;
+}
+
+@media (max-width: 900px) {
+    .projects-grid {
+        grid-template-columns: repeat(2, 1fr);   /* 2 per row on tablet */
+    }
+}
+
+@media (max-width: 540px) {
+    .projects-grid {
+        grid-template-columns: 1fr;   /* 1 per row on mobile */
+    }
+}
+
+/* ── Project card Remove button (Projects page) ────────────────────────────
+   Matches the .member-remove-btn style from members.html exactly.
+   Added: for the Remove button beside Open Project on the Projects page.
+   ─────────────────────────────────────────────────────────────────────── */
+.proj-remove-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(220, 53, 69, 0.08);
+    color: #dc3545;
+    border: 1px solid rgba(220, 53, 69, 0.25);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: background 0.18s, border-color 0.18s;
+    margin-top: 8px;
+}
+.proj-remove-btn:hover {
+    background: rgba(220, 53, 69, 0.18);
+    border-color: rgba(220, 53, 69, 0.5);
+}
+
+/* Button row inside a project card: Open + Remove side by side */
+.proj-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+}
+
+/* Black overlay stays behind the page content */
+.background-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.38);
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* Keep the greeting, caption, navbar and projects above the overlay */
+.dash-navbar,
+.dash-hero,
+.dash-projects-section {
+    position: relative;
+    z-index: 1;
+}
+.profile-page .dash-navbar,
+.projects-page-clean .dash-navbar,
+.members-page .dash-navbar,
+.tasks-page .dash-navbar,
+.project-details-page .dash-navbar {
+    background: rgb(15, 23, 42);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}

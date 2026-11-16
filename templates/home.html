@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Workflow</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+    <style>
+        /* Public Sign In / Register buttons in the top-right of the navbar */
+        .home-auth-btn {
+            padding: 6px 18px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.2s, color 0.2s;
+        }
+        .home-signin-btn {
+            background: #fff;
+            color: #0f172a;
+            border: none;
+        }
+        .home-signin-btn:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<!-- Public landing page: same full-screen background as the authenticated dashboard -->
+<body class="dash-page"
+      style="background-image: url('{{ url_for('static', filename='images/back_ground.jpg') }}');">
+
+    <!-- Same transparent overlay as the dashboard for readability -->
+    <div style="position:fixed;inset:0;background:rgba(0,0,0,0.38);z-index:0;pointer-events:none;"></div>
+
+    <!-- ── Public navbar — no sidebar, no authenticated links ── -->
+    <header class="dash-navbar">
+        <div class="dash-navbar-left">
+            <a href="/" class="dash-brand">Workflow</a>
+        </div>
+
+        <!-- Center nav links (About and Contact are static placeholders) -->
+        <ul class="dash-nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="#">Contact</a></li>
+        </ul>
+
+        <!-- Right: Sign In only (Register button removed as requested) -->
+        <div style="display:flex;align-items:center;">
+            <a href="/login" class="home-auth-btn home-signin-btn">Sign In</a>
+        </div>
+    </header>
+
+    <!-- ── Hero content — no personalized data ── -->
+    <section class="dash-hero">
+
+        <!-- Generic welcome greeting (not personalized — no session) -->
+        <h1 class="dash-greeting">Welcome to Workflow</h1>
+
+        <!-- Same three-line caption as the authenticated dashboard -->
+        <div class="dash-caption">
+            <span class="dash-caption-quote">
+                "Manage<br>
+                your projects, tasks and<br>
+                colleagues"
+            </span>
+        </div>
+
+    </section>
+
+
+</body>
+</html>
